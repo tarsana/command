@@ -1,0 +1,30 @@
+{
+    "name": "tarsana/command",
+    "description": "A framework to build command line applications and share them with the world",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Amine Ben hammou",
+            "email": "webneat@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Tarsana\\Command\\": "src/"
+        }
+    },
+    "require": {
+        "league/climate": "^3.2",
+        "twig/twig": "^1.24",
+        "tarsana/functional": "~1.0",
+        "tarsana/io": "~2.0",
+        "tarsana/syntax": "~1.3"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^2.8",
+        "codeception/codeception": "^2.2",
+        "mockery/mockery": "^0.9.5",
+        "satooshi/php-coveralls": "~1.0"
+    }
+}
