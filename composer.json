@@ -1,0 +1,33 @@
+{
+    "name": "tarsana/application",
+    "description": "A framework to build command line applications and share them with the world",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Amine Ben hammou",
+            "email": "webneat@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Tarsana\\Application\\": "src/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/matteosister/php-curry"
+        }
+    ],
+    "require": {
+        "tarsana/syntax": "^1.1",
+        "tarsana/functional": "^1.2",
+        "tarsana/io": "^2.0",
+        "league/climate": "^3.2"
+    },
+    "require-dev": {
+        "codeception/codeception": "^2.2",
+        "mockery/mockery": "^0.9.5"
+    }
+}
