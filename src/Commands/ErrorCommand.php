@@ -1,7 +1,8 @@
 <?php namespace Tarsana\Application\Commands;
 
 
-use Tarsana\Application\IO;
+use League\CLImate\CLImate;
+use Tarsana\Application\Command;
 use Tarsana\Syntax\Factory as S;
 
 
@@ -9,13 +10,15 @@ class ErrorCommand extends Command {
 
     public function init ()
     {
-        $this->syntax(S::obj([
+        $this
+        ->isInternal(true)
+        ->syntax(S::obj([
             'name' => S::string(),
             'details' => S::string()
         ], ' '));
     }
 
-    public function handle (IO $io, $input = null)
+    public function handle ()
     {
         $message = 'Some Error Happened !';
         if (null !== $input) {
@@ -25,7 +28,8 @@ class ErrorCommand extends Command {
                 break;
             }
         }
-        $io->err()->writeLine($message);
+        $this->cli()->error($message);
+        $this->app->runner()->clear();
     }
 
 }

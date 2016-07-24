@@ -1,12 +1,12 @@
 <?php namespace Tarsana\Application;
 
-use Tarsana\Application\Commands\Command;
+use Tarsana\Application\Syntaxes\ApplicationInputSyntax;
 use Tarsana\Application\Exceptions\CommandNotFound;
 use Tarsana\Application\Runner;
-use Tarsana\Application\Syntaxes\ApplicationInputSyntax;
-use Tarsana\Functional as F;
 use Tarsana\Functional\Stream;
-use Tarsana\IO\Resources\InputResource;
+use Tarsana\Functional as F;
+use League\CLImate\CLImate;
+use Tarsana\IO\Filesystem;
 use Tarsana\Syntax\Syntax;
 
 class Application {
@@ -54,6 +54,13 @@ class Application {
     protected $runner;
 
     /**
+     * The templates loader.
+     *
+     * @var Tarsana\Application\TemplateLoader
+     */
+    protected $templatesLoader;
+
+    /**
      * Creates an application.
      *
      * @param string $name
@@ -68,6 +75,7 @@ class Application {
         $this->commands = [];
         $this->context = [];
         $this->runner = new Runner;
+        $this->templatesLoader = null;
         $this->addDefaultCommands();
     }
 
@@ -128,6 +136,37 @@ class Application {
     }
 
     /**
+     * TemplateLoader getter and setter.
+     *
+     * @param  Tarsana\Application\TemplateLoader|void $value
+     * @return Tarsana\Application\TemplateLoader|self
+     */
+    public function templatesLoader (TemplateLoader $value = null)
+    {
+        if (null === $value) {
+            if (null === $this->templatesLoader)
+                throw new ApplicationExBception("Trying to use the template loader but it was not initialized !");
+            return $this->templatesLoader;
+        }
+        $this->templatesLoader = $value;
+        return $this;
+    }
+
+    /**
+     * Templates path getter and setter.
+     *
+     * @param  string|void $value
+     * @return string|self
+     */
+    public function templatesPath ($value = null)
+    {
+        if (null === $value)
+            return $this->templatesLoader->fs()->path();
+        $this->templatesLoader = new TemplateLoader(new Filesystem($value));
+        return $this;
+    }
+
+    /**
      * Checks if the application has a command with the provided name.
      *
      * @param  string  $name
@@ -174,18 +213,18 @@ class Application {
      * Runs the application.
      *
      * @param  string  $args
-     * @param  IO|null $io
+     * @param  League\CLImate\CLImate|null $cli
      * @return void
      */
-    public function run ($args = null, IO $io = null, Syntax $syntax = null)
+    public function run ($args = null, CLImate $cli = null, Syntax $syntax = null)
     {
         if (null === $args)
             $args = Stream::of($_SERVER['argv'])
                 ->then('Tarsana\Functional\tail')
                 ->then(F\join(' '))
                 ->get();
-        if (null === $io)
-            $io = new IO();
+        if (null === $cli)
+            $cli = new CLImate();
         if(null === $syntax)
             $syntax = new ApplicationInputSyntax;
 
@@ -193,16 +232,16 @@ class Application {
         $done = false;
         foreach ($input->flags() as $flag) {
             if ($this->hasCommand($flag)) {
-                $this->scheduleCommand($flag, $io);
+                $this->scheduleCommand($flag, $cli);
                 $done = true;
                 break;
             }
         }
         if (! $done) {
             if ($input->command()) {
-                $this->scheduleCommand($input->command(), $io, $input->args());
+                $this->scheduleCommand($input->command(), $cli, $input->args());
             } else {
-                $this->scheduleCommand('', $io); // default command
+                $this->scheduleCommand('', $cli); // default command
             }
         }
         $this->runner->start();
@@ -212,15 +251,16 @@ class Application {
      * Schedule a command to be executed.
      *
      * @param  string $name
-     * @param  string|null $input
+     * @param  League\CLImate\CLImate $cli
+     * @param  string|null $args
      * @return void
      */
-    public function scheduleCommand ($name, IO $io, $input = null)
+    public function scheduleCommand ($name, CLImate $cli, $args = null)
     {
         if ($this->hasCommand($name)) {
-            $this->runner->schedule($this->command($name), $io, $input);
+            $this->runner->schedule($this->command($name), $cli, $args);
         } else {
-            $this->runner->schedule($this->command('error'), $io, "cmd-not-found {$name}");
+            $this->runner->schedule($this->command('error'), $cli, "cmd-not-found {$name}");
         }
     }
 

@@ -1,7 +1,6 @@
 <?php namespace Tarsana\Application;
 
-use Tarsana\Application\Commands\Command;
-
+use League\CLImate\CLImate;
 /**
  * Commands runner; schedules and runs commands.
  */
@@ -23,31 +22,31 @@ class Runner {
      * Schedules a command.
      *
      * @param  Command $command
-     * @param  IO $io
-     * @param  string|null  $input
+     * @param  League\CLImate\CLImate $cli
+     * @param  string|null  $args
      * @return self
      */
-    public function schedule (Command $command, IO $io, $input = null)
+    public function schedule (Command $command, CLImate $cli, $args = null)
     {
         $this->commands[] = [
             'cmd' => $command,
-            'io' => $io,
-            'input' => $input
+            'cli' => $cli,
+            'args' => $args
         ];
         return $this;
     }
 
     /**
-     * Runs a command with specific input.
+     * Runs a command.
      *
      * @param  Command $command
-     * @param  IO $command
-     * @param  string|null  $input
+     * @param  League\CLImate\CLImate $cli
+     * @param  string|null  $args
      * @return self
      */
-    public function run (Command $command, IO $io, $input = null)
+    public function run (Command $command, CLImate $cli, $args = null)
     {
-        $command->run($io, $input);
+        $command->run($cli, $args);
         return $this;
     }
 
@@ -60,7 +59,7 @@ class Runner {
     {
         while (count($this->commands) > 0) {
             $toRun = array_shift($this->commands);
-            $this->run($toRun['cmd'], $toRun['io'], $toRun['input']);
+            $this->run($toRun['cmd'], $toRun['cli'], $toRun['args']);
         }
         return $this;
     }

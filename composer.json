@@ -12,19 +12,36 @@
     "autoload": {
         "psr-4": {
             "Tarsana\\Application\\": "src/"
-        }
+        },
+        "files": [
+          "src/constants.php"
+        ]
     },
     "repositories": [
         {
             "type": "git",
             "url": "https://github.com/matteosister/php-curry"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/tarsana/functional"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/tarsana/syntax"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/tarsana/io"
         }
     ],
     "require": {
-        "tarsana/syntax": "^1.1",
-        "tarsana/functional": "^1.2",
-        "tarsana/io": "^2.0",
-        "league/climate": "^3.2"
+        "league/climate": "^3.2",
+        "twig/twig": "^1.24",
+        "symfony/var-dumper": "^2.8",
+        "tarsana/functional": "dev-master",
+        "tarsana/io": "dev-master",
+        "tarsana/syntax": "dev-master"
     },
     "require-dev": {
         "codeception/codeception": "^2.2",

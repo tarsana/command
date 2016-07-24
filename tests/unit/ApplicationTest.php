@@ -1,10 +1,10 @@
 <?php
 
+use League\CLImate\CLImate;
 use Tarsana\Application\Application;
 use Tarsana\Application\Commands\Command;
 use Tarsana\Application\Commands\ErrorCommand;
 use Tarsana\Application\Commands\HelpCommand;
-use Tarsana\Application\IO;
 use Tarsana\Application\Inputs\ApplicationInput;
 use Tarsana\Application\Runner;
 use Tarsana\Application\Syntaxes\ApplicationInputSyntax;
@@ -61,15 +61,14 @@ class ApplicationTest extends \Codeception\TestCase\Test
         $runner = m::mock(Runner::class)
             ->shouldReceive('schedule')
             ->once()
-            ->andReturnUsing(function(Command $command, IO $io, $input = null) {
+            ->andReturnUsing(function(Command $command, CLImate $cli, $input = null) {
                 $this->assertEquals('yeah', $command->me());
-                $this->assertEquals("it's me", $io->me());
+                $this->assertEquals("it's me", $cli->me());
                 $this->assertEquals('args...', $input);
             })
             ->shouldReceive('start')
             ->never()
             ->getMock();
-
 
         $cmd = m::mock(Command::class)
             ->shouldReceive('app')->once()
@@ -77,7 +76,7 @@ class ApplicationTest extends \Codeception\TestCase\Test
             ->shouldReceive('me')->andReturn('yeah')
             ->getMock();
 
-        $io = m::mock(IO::class)
+        $cli = m::mock(CLImate::class)
             ->shouldReceive('me')
             ->andReturn("it's me")
             ->getMock();
@@ -86,7 +85,7 @@ class ApplicationTest extends \Codeception\TestCase\Test
             ->runner($runner)
             ->command('cmd', $cmd);
 
-        $this->app->scheduleCommand('cmd', $io, 'args...');
+        $this->app->scheduleCommand('cmd', $cli, 'args...');
     }
 
     public function test_schedule_missing_command()
@@ -94,7 +93,7 @@ class ApplicationTest extends \Codeception\TestCase\Test
         $runner = m::mock(Runner::class)
             ->shouldReceive('schedule')
             ->once()
-            ->andReturnUsing(function(Command $command, IO $io, $input = null) {
+            ->andReturnUsing(function(Command $command, CLImate $cli, $input = null) {
                 $this->assertTrue($command instanceof ErrorCommand);
             })
             ->shouldReceive('start')
@@ -107,11 +106,11 @@ class ApplicationTest extends \Codeception\TestCase\Test
             ->shouldReceive('init')->never()
             ->getMock();
 
-        $io = m::mock(IO::class);
+        $cli = m::mock(CLImate::class);
 
         $this->app
             ->runner($runner)
-            ->scheduleCommand('cmd', $io, 'args...');
+            ->scheduleCommand('cmd', $cli, 'args...');
     }
 
     public function test_run_default_command()
@@ -119,7 +118,7 @@ class ApplicationTest extends \Codeception\TestCase\Test
         $runner = m::mock(Runner::class)
             ->shouldReceive('schedule')
             ->once()
-            ->andReturnUsing(function(Command $command, IO $io, $input = null) {
+            ->andReturnUsing(function(Command $command, CLImate $cli, $input = null) {
                 $this->assertEquals('yeah', $command->me());
             })
             ->shouldReceive('start')
@@ -143,7 +142,7 @@ class ApplicationTest extends \Codeception\TestCase\Test
         $runner = m::mock(Runner::class)
             ->shouldReceive('schedule')
             ->twice()
-            ->andReturnUsing(function(Command $command, IO $io, $input = null) {
+            ->andReturnUsing(function(Command $command, CLImate $cli, $input = null) {
                 $this->assertTrue($command instanceof HelpCommand);
             })
             ->shouldReceive('start')
@@ -164,9 +163,9 @@ class ApplicationTest extends \Codeception\TestCase\Test
         $runner = m::mock(Runner::class)
             ->shouldReceive('schedule')
             ->once()
-            ->andReturnUsing(function(Command $command, IO $io, $input = null) {
+            ->andReturnUsing(function(Command $command, CLImate $cli, $input = null) {
                 $this->assertEquals('yeah', $command->me());
-                $this->assertEquals("it's me", $io->me());
+                $this->assertEquals("it's me", $cli->me());
                 $this->assertEquals('args...', $input);
             })
             ->shouldReceive('start')
@@ -181,7 +180,7 @@ class ApplicationTest extends \Codeception\TestCase\Test
             ->andReturn('yeah')
             ->getMock();
 
-        $io = m::mock(IO::class)
+        $cli = m::mock(CLImate::class)
             ->shouldReceive('me')
             ->andReturn("it's me")
             ->getMock();
@@ -203,7 +202,7 @@ class ApplicationTest extends \Codeception\TestCase\Test
             ->runner($runner)
             ->command('cmd', $cmd);
 
-        $this->app->run('cmd args...', $io, $syntax);
+        $this->app->run('cmd args...', $cli, $syntax);
     }
 
 }

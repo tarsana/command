@@ -1,7 +1,7 @@
 <?php
 
+use League\CLImate\CLImate;
 use Tarsana\Application\Commands\Command;
-use Tarsana\Application\IO;
 use Tarsana\Application\Runner;
 use \Mockery as m;
 
@@ -24,9 +24,9 @@ class RunnerTest extends \Codeception\TestCase\Test
         $cmd = m::mock(Command::class)
             ->shouldReceive('run')->once()
             ->getMock();
-        $io = m::mock(IO::class);
+        $cli = m::mock(CLImate::class);
 
-        $this->runner->schedule($cmd, $io)
+        $this->runner->schedule($cmd, $cli)
             ->start();
         $this->runner->start();
     }
@@ -36,12 +36,12 @@ class RunnerTest extends \Codeception\TestCase\Test
         $cmd = m::mock(Command::class)
             ->shouldReceive('run')->times(3)
             ->getMock();
-        $io = m::mock(IO::class);
+        $cli = m::mock(CLImate::class);
 
         $this->runner
-            ->schedule($cmd, $io)
-            ->schedule($cmd, $io)
-            ->schedule($cmd, $io)
+            ->schedule($cmd, $cli)
+            ->schedule($cmd, $cli)
+            ->schedule($cmd, $cli)
             ->start();
     }
 
@@ -50,18 +50,18 @@ class RunnerTest extends \Codeception\TestCase\Test
         $cmd = m::mock(Command::class)
             ->shouldReceive('run')->times(2)
             ->getMock();
-        $io = m::mock(IO::class);
+        $cli = m::mock(CLImate::class);
 
         $addingCmd = m::mock(Command::class)
             ->shouldReceive('run')->once()
-            ->andReturnUsing(function() use ($cmd, $io){
-                $this->runner->schedule($cmd, $io);
+            ->andReturnUsing(function() use ($cmd, $cli){
+                $this->runner->schedule($cmd, $cli);
             })
             ->getMock();
 
         $this->runner
-            ->schedule($addingCmd, $io)
-            ->schedule($cmd, $io)
+            ->schedule($addingCmd, $cli)
+            ->schedule($cmd, $cli)
             ->start();
     }
 
@@ -70,7 +70,7 @@ class RunnerTest extends \Codeception\TestCase\Test
         $cmd = m::mock(Command::class)
             ->shouldReceive('run')->never()
             ->getMock();
-        $io = m::mock(IO::class);
+        $cli = m::mock(CLImate::class);
 
         $clearingCmd = m::mock(Command::class)
             ->shouldReceive('run')->once()
@@ -80,9 +80,9 @@ class RunnerTest extends \Codeception\TestCase\Test
             ->getMock();
 
         $this->runner
-            ->schedule($clearingCmd, $io)
-            ->schedule($cmd, $io)
-            ->schedule($cmd, $io)
+            ->schedule($clearingCmd, $cli)
+            ->schedule($cmd, $cli)
+            ->schedule($cmd, $cli)
             ->start();
     }
 

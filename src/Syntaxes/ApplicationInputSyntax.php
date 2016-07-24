@@ -17,7 +17,7 @@ class ApplicationInputSyntax extends Syntax {
      */
     public function __toString()
     {
-        return '[flags... cmd args...]';
+        return 'flags... command args...';
     }
 
     /**
