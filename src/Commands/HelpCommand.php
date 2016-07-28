@@ -71,8 +71,13 @@ class HelpCommand extends Command {
 
     protected function commandHelp ($name)
     {
-        $this->cli()->green()->out("Help of {$name}");
         $command = $this->app->command($name);
+        $this->cli()->green()->out($name)
+            ->br()
+            ->green()->inline('Syntax: ')
+            ->yellow()->out(S::syntax()->dump($command->syntax()))
+            ->br()
+            ->out($command->description());
     }
 
 }
