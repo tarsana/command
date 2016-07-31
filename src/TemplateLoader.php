@@ -1,7 +1,7 @@
-<?php namespace Tarsana\Application;
+<?php namespace Tarsana\Command;
 
-use Tarsana\Application\Exceptions\TemplateNameConflict;
-use Tarsana\Application\Templates\TwigTemplateLoader;
+use Tarsana\Command\Exceptions\TemplateNameConflict;
+use Tarsana\Command\Templates\TwigTemplateLoader;
 use Tarsana\Functional\Stream as s;
 use Tarsana\Functional as F;
 use Tarsana\IO\Filesystem;
@@ -66,9 +66,9 @@ class TemplateLoader {
      * Load a template by name.
      *
      * @param  string $name
-     * @return Tarsana\Application\Interfaces\TemplateInterface
-     * @throws Tarsana\Application\Exceptions\TemplateNotFound
-     * @throws Tarsana\Application\Exceptions\TemplateNameConflict
+     * @return Tarsana\Command\Interfaces\TemplateInterface
+     * @throws Tarsana\Command\Exceptions\TemplateNotFound
+     * @throws Tarsana\Command\Exceptions\TemplateNameConflict
      */
     public function load ($name)
     {

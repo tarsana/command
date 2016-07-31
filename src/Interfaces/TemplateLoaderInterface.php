@@ -1,4 +1,4 @@
-<?php namespace Tarsana\Application\Interfaces;
+<?php namespace Tarsana\Command\Interfaces;
 
 /**
  * Templates Loader Interface
@@ -18,7 +18,7 @@ interface TemplateLoaderInterface {
      * Loads a template.
      *
      * @param  string $name
-     * @return Tarsana\Application\Interfaces\TemplateInterface
+     * @return Tarsana\Command\Interfaces\TemplateInterface
      */
     public function load($name);
 

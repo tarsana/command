@@ -1,3 +1,3 @@
-<?php namespace Tarsana\Application;
+<?php namespace Tarsana\Command;
 
-define('Tarsana\\Application\\TEMPLATES_PATH', __DIR__.'/../templates/');
+define('Tarsana\\Command\\TEMPLATES_PATH', __DIR__.'/../templates/');

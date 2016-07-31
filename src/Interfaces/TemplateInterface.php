@@ -1,4 +1,4 @@
-<?php namespace Tarsana\Application\Interfaces;
+<?php namespace Tarsana\Command\Interfaces;
 
 /**
  * Template Engine Interface

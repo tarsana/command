@@ -1,13 +1,11 @@
-<?php namespace Tarsana\Application;
+<?php namespace Tarsana\Command;
 
 use League\CLImate\CLImate;
-use Tarsana\Application\Exceptions\CommandException;
-use Tarsana\Application\TemplateLoader;
+use Tarsana\Command\Commands\HelpCommand;
+use Tarsana\Command\Commands\VersionCommand;
 use Tarsana\Functional as F;
-use Tarsana\IO\Filesystem;
+use Tarsana\Functional\Stream;
 use Tarsana\Syntax\Factory as S;
-use Tarsana\Syntax\StringSyntax;
-use Tarsana\Syntax\Syntax;
 
 /**
  * An abstract command class; the parent of all commands.
@@ -15,11 +13,11 @@ use Tarsana\Syntax\Syntax;
 abstract class Command {
 
     /**
-     * The application containing this command.
+     * The command name.
      *
-     * @var Tarsana\Application\Application
+     * @var string
      */
-    protected $app;
+    protected $name;
 
     /**
      * The command description.
@@ -29,35 +27,35 @@ abstract class Command {
     protected $description;
 
     /**
-     * Syntax to parse the command input.
+     * The command version.
+     *
+     * @var string
+     */
+    protected $version;
+
+    /**
+     * Syntax used to parse the command input.
      *
      * @var Tarsana\Syntax\Syntax
      */
     protected $syntax;
 
     /**
-     * template loader.
+     * List of sub commands
      *
-     * @var Tarsana\Application\TemplateLoader
+     * @var Tarsana\Command\Command[]
      */
-    protected $templateLoader;
-
-    /**
-     * Tells if the command is internal (not shown in help message).
-     *
-     * @var bool
-     */
-    protected $isInternal;
+    protected $subCommands;
 
     /**
      * Command line reader/writer.
      *
      * @var League\CLImate\CLImate
      */
-    protected $cli;
+    protected $console;
 
     /**
-     * Command line arguments.
+     * The result of parsing the input using syntaxes.
      *
      * @var mixed
      */
@@ -66,29 +64,32 @@ abstract class Command {
     /**
      * Creates a new Command.
      *
-     * @param Application|null $app
      */
-    public function __construct (Application $app = null)
+    public function __construct ()
     {
-        $this->app = $app;
-        $this->templateLoader = null;
-        $this->isInternal = false;
+        $this->syntax = S::string('');
+        $this->version = '0.0.1';
+        $this->description = '...';
+        $this->name = 'unknown';
+        $this->console = null;
+        $this->args = null;
 
-        if(null !== $this->syntax)
-            $this->syntax($this->syntax);
+        $this->addDefaultSubCommands();
+        $this->init();
     }
 
     /**
-     * Application getter and setter.
+     * Name getter and setter.
      *
-     * @param  Tarsana\Application\Application|void $value
-     * @return Tarsana\Application\Application|self
+     * @param  string|void $value
+     * @return string|self
      */
-    public function app (Application $value = null)
+    public function name ($value = null)
     {
         if (null === $value)
-            return $this->app;
-        $this->app = $value;
+            return $this->name;
+
+        $this->name = $value;
         return $this;
     }
 
@@ -102,67 +103,38 @@ abstract class Command {
     {
         if (null === $value)
             return $this->description;
+
         $this->description = $value;
         return $this;
     }
 
     /**
-     * isInternal getter and setter.
-     *
-     * @param  bool|void $value
-     * @return bool|self
-     */
-    public function isInternal ($value = null)
-    {
-        if (null === $value)
-            return $this->isInternal;
-        $this->isInternal = $value;
-        return $this;
-    }
-
-    /**
-     * cli getter and setter.
-     *
-     * @param  League\CLImate\CLImate|void $value
-     * @return League\CLImate\CLImate|self
-     */
-    public function cli ($value = null)
-    {
-        if (null === $value) {
-            if (null === $this->cli) {
-                throw new NullPropertyAccess("Trying to access null property 'cli' of a command");
-            }
-            return $this->cli;
-        }
-        $this->cli = $value;
-        return $this;
-    }
-
-    /**
-     * Template loader getter and setter.
-     *
-     * @param  Tarsana\Application\TemplateLoader|void $value
-     * @return Tarsana\Application\TemplateLoader|self
-     */
-    public function templateLoader (TemplateLoader $value = null)
-    {
-        if (null === $value)
-            return $this->templateLoader;
-        $this->templateLoader = $value;
-        return $this;
-    }
-
-    /**
-     * Templates path getter and setter.
+     * version getter and setter.
      *
      * @param  string|void $value
      * @return string|self
      */
-    public function templatesPath ($value = null)
+    public function version ($value = null)
     {
         if (null === $value)
-            return $this->templatesLoader->fs()->path();
-        $this->templatesLoader = new TemplateLoader(new Filesystem($value));
+            return $this->version;
+
+        $this->version = $value;
+        return $this;
+    }
+
+    /**
+     * Console getter and setter.
+     *
+     * @param  League\CLImate\CLImate|void $value
+     * @return League\CLImate\CLImate|self
+     */
+    public function console ($value = null)
+    {
+        if (null === $value)
+            return $this->console;
+
+        $this->console = $value;
         return $this;
     }
 
@@ -171,55 +143,179 @@ abstract class Command {
      *
      * @param  Tarsana\Syntax\Syntax|string|null $value
      * @return Tarsana\Syntax\Syntax|self
+     * @throws InvalidArgumentException
      */
     public function syntax ($value = null)
     {
         if (null === $value)
             return $this->syntax;
+
         if ($value instanceof Syntax)
             $this->syntax = $value;
-        else if (is_string($value)) {
-            $syntax = F\s($value)
-                ->then(F\chunks([['(',')'],['{','}'],['[',']'],['"','"']], ' '))
-                ->then(F\pipe(F\join(','), F\prepend('{ ,'), F\append('}')))
-                ->get();
-            $ss = S::syntax();
-            if ($ss->canParse($syntax))
-                $this->syntax = $ss->parse($syntax);
-            else
-                throw new \InvalidArgumentException("Invalid Syntax: '{$value}'");
-        } else {
+
+        else if (is_string($value))
+            $this->syntax = $this->syntaxFromString($value);
+
+        else
             throw new \InvalidArgumentException("Trying to set invalid syntax to command");
-        }
+
         return $this;
+    }
+
+    /**
+     * subCommands getter and setter.
+     *
+     * @param  array|null
+     * @return array|self
+     */
+    public function subCommands($value = null)
+    {
+        if (null === $value) {
+            return $this->subCommands;
+        }
+        $this->subCommands = $value;
+        return $this;
+    }
+
+    /**
+     * adds/overrides or gets a sub command.
+     *
+     * @param  string  $name
+     * @param  Tarsana\Command\Command|null $cmd
+     * @return Tarsana\Command\Command
+     */
+    public function command ($name, Command $cmd = null)
+    {
+        if (null === $cmd) {
+            if (!$this->hasCommand($name))
+                throw new CommandNotFound("Command '{$name}' not found");
+            return $this->subCommands[$name];
+        }
+
+        $this->subCommands[$name] = $cmd;
+        return $this;
+    }
+
+    /**
+     * Checks if a sub command with the provided name exists.
+     *
+     * @param  string  $name
+     * @return boolean
+     */
+    public function hasCommand ($name) {
+        return isset($this->subCommands[$name]);
+    }
+
+    /**
+     * args getter and setter.
+     *
+     * @param  stdClass|null
+     * @return stdClass|self
+     */
+    public function args($value = null)
+    {
+        if (null === $value)
+            return $this->args;
+
+        $this->args = $value;
+        return $this;
+    }
+
+    /**
+     * make a Syntax from custom string.
+     *
+     * @param  string $value
+     * @return Tarsana\Syntax\Syntax
+     * @throws InvalidArgumentException
+     */
+    protected function syntaxFromString ($value)
+    {
+        $syntax = F\s($value)->then(        // "first name" [#age]
+            F\chunks('(){}[]""', ' '),      // ["first name", [#age]]
+            F\join(','),                    // "first name",[#age]
+            F\prepend('{ ,'), F\append('}') // { ,"first name",[#age]}
+        )->get();
+
+        $ss = S::syntax();
+
+        if (!$ss->canParse($syntax))
+            throw new \InvalidArgumentException("Invalid Syntax: '{$syntax}'");
+
+        return $ss->parse($syntax);
     }
 
     /**
      * Runs the command.
      *
-     * @param  League\CLImate\CLImate $cli
      * @param  string|null $args
+     * @param  League\CLImate\CLImate|null $console
      * @return void
      */
-    public function run (CLImate $cli, $args = '')
+    public function run ($args = null, CLImate $console = null)
     {
-        $this->args = $args;
-        if (is_string($this->syntax))
-            $this->syntax($this->syntax);
-        if ($this->syntax !== null)
-            $this->args = $this->syntax->parse($args);
-        $this->cli($cli)->handle();
+        if (null === $args)
+            $args = $this->consoleArguments();
+        if (null === $console)
+            $console = new CLImate;
+
+        $firstArg = F\head(F\split(' ', $args));
+        if ($this->hasCommand($firstArg)) {
+            $this->command($firstArg)->run(
+                F\join(' ', F\tail(F\split(' ', $args))),
+                $console
+            );
+        } else {
+            $this->args($this->syntax->parse($args))
+                 ->console($console)
+                 ->execute();
+        }
     }
 
-    protected function template ($name)
+    /**
+     * Returns command line arguments as string.
+     *
+     * @return string
+     */
+    protected function consoleArguments ()
     {
-        if ($this->templatesLoader)
-            return $this->templatesLoader->load($name);
-
-        return $this->app()->templateLoader()->load($name);
+        return Stream::of($_SERVER['argv'])    // ['script.php', foo', 'lorem ipsum']
+            ->then(F\f('tail'))                // ['foo', 'lorem ipsum']
+            ->map(function($arg) {
+                return (F\contains(' ', $arg))
+                    ? "\"{$arg}\""
+                    : $arg;
+            })                                 // ['foo', '"lorem ipsum"']
+            ->then(F\join(' '))                // 'foo "lorem ipsum"'
+            ->get();
     }
 
-    public function init () {}
+    protected function addDefaultSubCommands ()
+    {
+        if (! ($this instanceof HelpCommand) && ! ($this instanceof VersionCommand)) {
+            $helpCommand = new HelpCommand($this);
+            $this->command('help', $helpCommand)
+                 ->command('--help', $helpCommand);
 
-    abstract public function handle ();
+            $versionCommand = new VersionCommand($this);
+            $this->command('version', $versionCommand)
+                 ->command('some-very-long-command-name', $versionCommand)
+                 ->command('--version', $versionCommand);
+        }
+    }
+
+    /**
+     * Initializes the command.
+     * Used to set the command description,
+     * syntax and any other configuration.
+     *
+     * @return void
+     */
+    protected function init () {}
+
+    /**
+     * The logic of the command goes in this method.
+     *
+     * @return self
+     */
+    abstract protected function execute ();
 }

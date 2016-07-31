@@ -1,6 +1,6 @@
-<?php namespace Tarsana\Application\Templates;
+<?php namespace Tarsana\Command\Templates;
 
-use Tarsana\Application\Interfaces\TemplateInterface;
+use Tarsana\Command\Interfaces\TemplateInterface;
 
 /**
  * Twig Template

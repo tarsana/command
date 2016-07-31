@@ -1,7 +1,7 @@
-<?php namespace Tarsana\Application\Templates;
+<?php namespace Tarsana\Command\Templates;
 
-use Tarsana\Application\Interfaces\TemplateLoaderInterface;
-use Tarsana\Application\Templates\TwigTemplate;
+use Tarsana\Command\Interfaces\TemplateLoaderInterface;
+use Tarsana\Command\Templates\TwigTemplate;
 
 /**
  * Twig Templates Loader
@@ -49,7 +49,7 @@ class TwigTemplateLoader implements TemplateLoaderInterface {
      * Loads a template.
      *
      * @param  string $name
-     * @return Tarsana\Application\Templates\TwigTemplate
+     * @return Tarsana\Command\Templates\TwigTemplate
      */
     public function load($name)
     {

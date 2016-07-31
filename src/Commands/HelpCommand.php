@@ -1,83 +1,62 @@
-<?php namespace Tarsana\Application\Commands;
+<?php namespace Tarsana\Command\Commands;
 
-use League\CLImate\CLImate;
-use Tarsana\Application\Command;
-use Tarsana\Application\Syntaxes\ApplicationInputSyntax;
-use Tarsana\Functional as F;
+use Tarsana\Command\Command;
+use Tarsana\Command\SubCommand;
 use Tarsana\Syntax\Factory as S;
-use Tarsana\Syntax\arr;
+use Tarsana\Functional as F;
 
-/**
- * Generates help message for application and commands.
- *
- * @command help
- * @version  1.0.0-alpha
- *
- */
-class HelpCommand extends Command {
 
-    protected $description = 'Shows help message';
+class HelpCommand extends SubCommand {
 
-    protected $syntax = '[command]';
+    protected function init ()
+    {
+        $this
+            ->name('Help')
+            ->version('0.0.1-alpha')
+            ->description('Shows help message')
+            ->syntax('[command]');
+    }
 
-    public function handle ()
+    protected function execute ()
     {
         $command = trim($this->args->command);
-        if ($command == '' || ! $this->app->hasCommand($command)) {
-            $this->appHelp();
-        } else {
-            $this->commandHelp($command);
-        }
+        if (empty($command) || !$this->parent()->hasCommand($command))
+            $this->showHelpOf($this->parent);
+        else
+            $this->showHelpOf($this->parent->command($command));
     }
 
-    protected function appHelp ()
+    protected function showHelpOf (Command $command)
     {
-        $flags = [];
-        $cmds = [];
-        foreach ($this->app->commands() as $name => $cmd) {
-            if ($name == '' || $cmd->isInternal()) continue;
-            if (F\startsWith('--', $name))
-                $flags[] = (object) [
-                    'name'        => '    <green>' . $name . '</green>',
-                    'description' => $cmd->description()
-                ];
-            else
-                $cmds[] = (object) [
-                    'name'        => '    <green>' . $name . '</green>',
-                    'description' => $cmd->description()
-                ];
-        }
+        $c = $this->console();
 
-        $this->cli()->green()->out($this->app->name());
-        $this->cli()->inline('version ')->yellow()->out($this->app->version());
-        $this->cli()->br();
-        $this->cli()->out($this->app->description());
-        $this->cli()->br();
-        $this->cli()->yellow()->inline('Usage: ')->green()->out(new ApplicationInputSyntax);
-        $this->cli()->br();
-        $this->cli()->yellow()->out('Flags:');
-        $pad = $this->cli()->padding(30)->char(' ');
-        foreach ($flags as $flag) {
-            $pad->label($flag->name)->result($flag->description);
-        }
-        $this->cli()->br();
-        $this->cli()->yellow()->out('Commands:');
-        $pad = $this->cli()->padding(30)->char(' ');
-        foreach ($cmds as $cmd) {
-            $pad->label($cmd->name)->result($cmd->description);
-        }
+        $c->br()
+          ->green()
+          ->inline($command->name() . ' ')
+          ->yellow()
+          ->out($command->version())
+          ->br()
+          ->out($command->description())
+          ->br()
+          ->yellow()
+          ->out('Syntax: ')
+          ->tab()->out(S::syntax()->dump($command->syntax()))
+          ->br();
 
+        if (!empty($command->subCommands())) {
+            $c->yellow()->out('Subcommands:');
+            $padding = F\s(array_keys($command->subCommands()))
+                ->map('strlen')
+                ->reduce(function($result, $item) {
+                    return ($result > $item) ? $result : $item;
+                }, 0)
+                ->get() * 2;
+            foreach ($command->subCommands() as $name => $cmd) {
+                $c->tab()
+                  ->padding($padding)->char(' ')
+                  ->label("<green>{$name}</green>")
+                  ->result($cmd->description());
+            }
+        }
     }
-
-    protected function commandHelp ($name)
-    {
-        $command = $this->app->command($name);
-        $this->cli()->green()->out($name)
-            ->br()
-            ->green()->inline('Syntax: ')
-            ->yellow()->out(S::syntax()->dump($command->syntax()))
-            ->br()
-            ->out($command->description());
-    }
-
 }

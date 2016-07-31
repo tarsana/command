@@ -1,18 +1,22 @@
-<?php namespace Tarsana\Application\Commands;
+<?php namespace Tarsana\Command\Commands;
 
-use League\CLImate\CLImate;
-use Tarsana\Application\Command;
+use Tarsana\Command\Command;
+use Tarsana\Command\SubCommand;
+use Tarsana\Syntax\Factory as S;
 
 
-class VersionCommand extends Command {
+class VersionCommand extends SubCommand {
 
-    protected $description = 'Shows the version of the application';
-
-    public function handle ()
+    protected function init ()
     {
-        $this->cli()->green()->inline($this->app->name())
-            ->inline(' version ')
-            ->yellow()->out($this->app->version());
+        $this
+            ->name('Version')
+            ->version('0.0.1')
+            ->description('Shows the version of the command');
     }
 
+    protected function execute ()
+    {
+        $this->console->out($this->parent->version());
+    }
 }
