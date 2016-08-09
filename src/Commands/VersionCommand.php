@@ -17,6 +17,10 @@ class VersionCommand extends SubCommand {
 
     protected function execute ()
     {
-        $this->console->out($this->parent->version());
+        $c = $this->parent();
+        $this->console
+             ->green()->inline($c->name())
+             ->white()->inline(' version ')
+             ->yellow()->out($c->version());
     }
 }

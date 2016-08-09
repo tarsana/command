@@ -1,13 +1,18 @@
 <?php namespace Tarsana\Command;
 
+use Tarsana\Command\Interfaces\TemplateLoaderInterface;
 use Tarsana\Command\Exceptions\TemplateNameConflict;
 use Tarsana\Command\Templates\TwigTemplateLoader;
 use Tarsana\Functional\Stream as s;
 use Tarsana\Functional as F;
 use Tarsana\IO\Filesystem;
 
-
-class TemplateLoader {
+/**
+ * This is the all-in-one template loader, it can decide
+ * which template loader implementation to call based on
+ * the file extension.
+ */
+class TemplateLoader implements TemplateLoaderInterface {
 
     /**
      * Template Loader Providers Classes.
@@ -33,18 +38,21 @@ class TemplateLoader {
     protected $loaders;
 
     /**
-     * Creates a new templates loader.
+     * Initialize the loader.
      *
-     * @param Filesystem $fs
+     * @param  string $templatesPath
+     * @param  string $cachePath
+     * @return self
      */
-    public function __construct(Filesystem $fs)
-    {
-        $this->fs = $fs;
+    public function init($templatesPath, $cachePath = null) {
+
+        $this->fs = new Filesystem($templatesPath);
 
         $this->loaders = [];
 
         foreach (self::$providers as $ext => $provider) {
-            $this->loaders[$ext] = new $provider($this->fs->path());
+            $this->loaders[$ext] = new $provider();
+            $this->loaders[$ext]->init($templatesPath, $cachePath);
         }
     }
 
@@ -63,7 +71,11 @@ class TemplateLoader {
     }
 
     /**
-     * Load a template by name.
+     * Load a template by name. The name is the relative
+     * path of the template file from the templates folder
+     * The name is given without extension; Exceptions are
+     * thrown if no file with supported extension is found
+     * or if many exists.
      *
      * @param  string $name
      * @return Tarsana\Command\Interfaces\TemplateInterface

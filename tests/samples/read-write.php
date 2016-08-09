@@ -9,7 +9,7 @@ class HelloCommand extends Command {
     protected function init ()
     {
         $this
-            ->name('Hello')
+            ->name('Read Write Sample')
             ->version('1.1.0')
             ->description('Shows a hello message');
     }

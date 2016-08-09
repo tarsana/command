@@ -3,8 +3,11 @@
 use League\CLImate\CLImate;
 use Tarsana\Command\Commands\HelpCommand;
 use Tarsana\Command\Commands\VersionCommand;
+use Tarsana\Command\Exceptions\NullPropertyAccess;
+use Tarsana\Command\Interfaces\TemplateLoaderInterface;
 use Tarsana\Functional as F;
 use Tarsana\Functional\Stream;
+use Tarsana\IO\Filesystem;
 use Tarsana\Syntax\Factory as S;
 
 /**
@@ -62,14 +65,29 @@ abstract class Command {
     protected $args;
 
     /**
+     * Filesystem handler.
+     *
+     * @var Tarsana\IO\Filesystem
+     */
+    protected $fs;
+
+    /**
+     * Templates loader.
+     *
+     * @var Tarsana\Command\Interfaces\TemplateLoaderInterface
+     */
+    protected $templatesLoader;
+
+    /**
      * Creates a new Command.
      *
      */
     public function __construct ()
     {
+        $this->fs = new Filesystem('.');
         $this->syntax = S::string('');
-        $this->version = '0.0.1';
         $this->description = '...';
+        $this->version = '0.0.1';
         $this->name = 'unknown';
         $this->console = null;
         $this->args = null;
@@ -222,6 +240,93 @@ abstract class Command {
     }
 
     /**
+     * Filesystem getter and setter.
+     *
+     * @param  Tarsana\IO\Filesystem|null
+     * @return Tarsana\IO\Filesystem|self
+     */
+    public function fs(Filesystem $value = null)
+    {
+        if (null === $value) {
+            return $this->fs;
+        }
+        $this->fs = $value;
+        return $this;
+    }
+
+    /**
+     * Templates Loader getter and setter.
+     *
+     * @param  Tarsana\Command\Interfaces\TemplateLoaderInterface|null
+     * @return Tarsana\Command\Interfaces\TemplateLoaderInterface|self
+     */
+    public function templatesLoader(TemplateLoaderInterface $value = null)
+    {
+        if (null === $value) {
+            return $this->templatesLoader;
+        }
+        $this->templatesLoader = $value;
+        return $this;
+    }
+
+    /**
+     * Runs the command.
+     *
+     * @param  string|null $args
+     * @param  League\CLImate\CLImate|null $console
+     * @return void
+     */
+    public function run ($args = null, CLImate $console = null)
+    {
+        try {
+
+            if (null === $args)
+                $args = $this->consoleArguments();
+            if (null === $console)
+                $console = new CLImate;
+
+            $firstArg = F\head(F\split(' ', $args));
+            if ($this->hasCommand($firstArg)) {
+                $args = F\join(' ', F\tail(F\split(' ', $args)));
+                $this->command($firstArg)->run($args, $console);
+            } else {
+                $this->console($console);
+                if (! $this->syntax->canParse($args)) {
+                    $errors = F\s($this->syntax->checkParse($args))
+                        ->then(F\append("Invalid arguments: '{$args}' for command '{$this->name}'"))
+                        ->then(F\join(PHP_EOL))
+                        ->get();
+                    $this->error($errors);
+                }
+
+                else
+                    $this->args($this->syntax->parse($args))
+                         ->execute();
+            }
+        } catch (\Exception $e) {
+            $this->error(
+                $e->getMessage()
+                . PHP_EOL . PHP_EOL .
+                $e->getTraceAsString()
+            );
+        }
+    }
+
+    /**
+     * Loads a template by name.
+     *
+     * @param  string $name
+     * @return Tarsana\Command\Interfaces\TemplateInterface
+     */
+    protected function template($name)
+    {
+        if (null === $this->templatesLoader)
+            throw new NullPropertyAccess("The templatesLoader is not initialized; Please set it before trying to load a template !");
+
+        return $this->templatesLoader->load($name);
+    }
+
+    /**
      * make a Syntax from custom string.
      *
      * @param  string $value
@@ -245,33 +350,6 @@ abstract class Command {
     }
 
     /**
-     * Runs the command.
-     *
-     * @param  string|null $args
-     * @param  League\CLImate\CLImate|null $console
-     * @return void
-     */
-    public function run ($args = null, CLImate $console = null)
-    {
-        if (null === $args)
-            $args = $this->consoleArguments();
-        if (null === $console)
-            $console = new CLImate;
-
-        $firstArg = F\head(F\split(' ', $args));
-        if ($this->hasCommand($firstArg)) {
-            $this->command($firstArg)->run(
-                F\join(' ', F\tail(F\split(' ', $args))),
-                $console
-            );
-        } else {
-            $this->args($this->syntax->parse($args))
-                 ->console($console)
-                 ->execute();
-        }
-    }
-
-    /**
      * Returns command line arguments as string.
      *
      * @return string
@@ -289,24 +367,38 @@ abstract class Command {
             ->get();
     }
 
+    /**
+     * Adds Help and Version sub commands.
+     */
     protected function addDefaultSubCommands ()
     {
         if (! ($this instanceof HelpCommand) && ! ($this instanceof VersionCommand)) {
             $helpCommand = new HelpCommand($this);
-            $this->command('help', $helpCommand)
-                 ->command('--help', $helpCommand);
+            $this->command('--help', $helpCommand)
+                 ->command('help', $helpCommand);
 
             $versionCommand = new VersionCommand($this);
-            $this->command('version', $versionCommand)
-                 ->command('some-very-long-command-name', $versionCommand)
-                 ->command('--version', $versionCommand);
+            $this->command('--version', $versionCommand);
         }
     }
 
     /**
-     * Initializes the command.
-     * Used to set the command description,
-     * syntax and any other configuration.
+     * Shows an error message and stops the execution of the command.
+     *
+     * @param  string $message
+     * @return void
+     */
+    protected function error ($message)
+    {
+        $this->console->style->addCommand('error', 'white');
+        $this->console->backgroundRed()->error($message);
+        exit(1);
+    }
+
+    /**
+     * Initializes the command. Override it to set the command
+     * description, version, syntax, filesystem, templates
+     * laoder and any other configuration.
      *
      * @return void
      */

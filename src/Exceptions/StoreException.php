@@ -1,3 +1,3 @@
 <?php namespace Tarsana\Command\Exceptions;
 
-class CommandNotFound extends \Exception {}
+class StoreException extends \Exception {}

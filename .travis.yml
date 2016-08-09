@@ -19,6 +19,6 @@ install:
 
 script:
   - mkdir -p build/logs 
-  - vendor/bin/phpunit
+  - vendor/bin/codecept run
 
 after_success: php vendor/bin/coveralls

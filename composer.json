@@ -12,10 +12,7 @@
     "autoload": {
         "psr-4": {
             "Tarsana\\Command\\": "src/"
-        },
-        "files": [
-          "src/constants.php"
-        ]
+        }
     },
     "repositories": [
         {

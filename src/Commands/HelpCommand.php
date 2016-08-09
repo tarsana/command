@@ -12,7 +12,7 @@ class HelpCommand extends SubCommand {
     {
         $this
             ->name('Help')
-            ->version('0.0.1-alpha')
+            ->version('0.0.1')
             ->description('Shows help message')
             ->syntax('[command]');
     }
