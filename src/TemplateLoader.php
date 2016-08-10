@@ -2,7 +2,6 @@
 
 use Tarsana\Command\Interfaces\TemplateLoaderInterface;
 use Tarsana\Command\Exceptions\TemplateNameConflict;
-use Tarsana\Command\Templates\TwigTemplateLoader;
 use Tarsana\Functional\Stream as s;
 use Tarsana\Functional as F;
 use Tarsana\IO\Filesystem;
@@ -20,7 +19,7 @@ class TemplateLoader implements TemplateLoaderInterface {
      * @var array
      */
     protected static $providers = [
-        'twig' => TwigTemplateLoader::class
+        'twig' => 'Tarsana\Command\Templates\TwigTemplateLoader'
     ];
 
     /**
