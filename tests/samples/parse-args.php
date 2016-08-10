@@ -1,7 +1,7 @@
 <?php
 require __DIR__.'/../../vendor/autoload.php';
 
-use Tarsana\Application\Command;
+use Tarsana\Command\Command;
 
 
 class PersonCommand extends Command {

@@ -46,6 +46,9 @@ class TwigTemplate implements TemplateInterface {
      */
     public function render($data = null)
     {
+        if (null !== $data) {
+            $this->bind($data);
+        }
         return $this->twig->render($this->data);
     }
 

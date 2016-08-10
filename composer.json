@@ -1,5 +1,5 @@
 {
-    "name": "tarsana/application",
+    "name": "tarsana/command",
     "description": "A framework to build command line applications and share them with the world",
     "type": "library",
     "license": "MIT",

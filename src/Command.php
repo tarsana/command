@@ -1,14 +1,16 @@
 <?php namespace Tarsana\Command;
 
+use Tarsana\IO\Filesystem;
 use League\CLImate\CLImate;
+use Tarsana\Functional as F;
+use Tarsana\Functional\Stream;
+use Tarsana\Command\Environment;
+use Tarsana\Syntax\Factory as S;
+use Tarsana\Command\TemplateLoader;
 use Tarsana\Command\Commands\HelpCommand;
 use Tarsana\Command\Commands\VersionCommand;
 use Tarsana\Command\Exceptions\NullPropertyAccess;
 use Tarsana\Command\Interfaces\TemplateLoaderInterface;
-use Tarsana\Functional as F;
-use Tarsana\Functional\Stream;
-use Tarsana\IO\Filesystem;
-use Tarsana\Syntax\Factory as S;
 
 /**
  * An abstract command class; the parent of all commands.
@@ -76,7 +78,7 @@ abstract class Command {
      *
      * @var Tarsana\Command\Interfaces\TemplateLoaderInterface
      */
-    protected $templatesLoader;
+    protected $templateLoader;
 
     /**
      * Creates a new Command.
@@ -84,6 +86,7 @@ abstract class Command {
      */
     public function __construct ()
     {
+        $this->templateLoader = new TemplateLoader;
         $this->fs = new Filesystem('.');
         $this->syntax = S::string('');
         $this->description = '...';
@@ -260,12 +263,25 @@ abstract class Command {
      * @param  Tarsana\Command\Interfaces\TemplateLoaderInterface|null
      * @return Tarsana\Command\Interfaces\TemplateLoaderInterface|self
      */
-    public function templatesLoader(TemplateLoaderInterface $value = null)
+    public function templateLoader(TemplateLoaderInterface $value = null)
     {
         if (null === $value) {
             return $this->templatesLoader;
         }
         $this->templatesLoader = $value;
+        return $this;
+    }
+
+    /**
+     * Sets the template paths.
+     *
+     * @param  string $templatesPath
+     * @param  string $cachePath
+     * @return self
+     */
+    public function templatePaths($templatesPath, $cachePath = null)
+    {
+        $this->templateLoader->init($templatesPath, $cachePath);
         return $this;
     }
 
@@ -320,10 +336,10 @@ abstract class Command {
      */
     protected function template($name)
     {
-        if (null === $this->templatesLoader)
+        if (null === $this->templateLoader)
             throw new NullPropertyAccess("The templatesLoader is not initialized; Please set it before trying to load a template !");
 
-        return $this->templatesLoader->load($name);
+        return $this->templateLoader->load($name);
     }
 
     /**
@@ -393,6 +409,21 @@ abstract class Command {
         $this->console->style->addCommand('error', 'white');
         $this->console->backgroundRed()->error($message);
         exit(1);
+    }
+
+    /**
+     * Calls a command on the environment store.
+     *
+     * @param  string  $name
+     * @param  string  $args
+     * @param  CLImate $console
+     * @return void
+     */
+    protected function call ($name, $args = null, CLImate $console = null)
+    {
+        return Environment::get()
+            ->command($name)
+            ->run($args, $console);
     }
 
     /**

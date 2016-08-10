@@ -16,17 +16,6 @@ class TwigTemplateLoader implements TemplateLoaderInterface {
     protected $env;
 
     /**
-     * Creates a new Twig template loader.
-     *
-     * @param string $templatesPath
-     * @param string $cachePath
-     */
-    public function __construct ($templatesPath, $cachePath = null)
-    {
-        $this->init($templatesPath, $cachePath);
-    }
-
-    /**
      * Initialize the loader.
      *
      * @param  string $templatesPath
