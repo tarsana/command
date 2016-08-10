@@ -9,3 +9,4 @@ modules:
     enabled:
         - Cli
         - \Helper\Acceptance
+        - Filesystem

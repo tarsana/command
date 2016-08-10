@@ -1,14 +1,26 @@
-<?php namespace Tarsana\Application\Commands;
+<?php namespace Tarsana\Command\Commands;
 
-use Tarsana\Application\IO;
+use Tarsana\Command\Command;
+use Tarsana\Command\SubCommand;
+use Tarsana\Syntax\Factory as S;
 
 
+class VersionCommand extends SubCommand {
 
-class VersionCommand extends Command {
-
-    public function handle (IO $io, $input = null)
+    protected function init ()
     {
-        $io->out()->writeLine($this->app->version());
+        $this
+            ->name('Version')
+            ->version('0.0.1')
+            ->description('Shows the version of the command');
     }
 
+    protected function execute ()
+    {
+        $c = $this->parent();
+        $this->console
+             ->green()->inline($c->name())
+             ->white()->inline(' version ')
+             ->yellow()->out($c->version());
+    }
 }

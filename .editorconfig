@@ -2,12 +2,12 @@
 root = true
 
 [*]
+charset = utf-8
 end_of_line = lf
+
+[*.{php,json}]
 insert_final_newline = true
 trim_trailing_whitespace = true
-
-[*.{php,json,yml}]
-charset = utf-8
 
 [*.php]
 indent_style = space

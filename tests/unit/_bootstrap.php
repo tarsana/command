@@ -1,2 +1,11 @@
 <?php
-// Here you can initialize variables that will be available to your tests
+// Classes used in tests
+class Foo {
+    public $value;
+}
+
+class Bar {
+    public $value;
+}
+
+class ChildFoo extends Foo {}
