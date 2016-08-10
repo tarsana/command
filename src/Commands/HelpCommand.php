@@ -43,7 +43,7 @@ class HelpCommand extends SubCommand {
           ->tab()->out(S::syntax()->dump($command->syntax()))
           ->br();
 
-        if (!empty($command->subCommands())) {
+        if (!empty($command->subCommands)) {
             $c->yellow()->out('Subcommands:');
             $padding = F\s(array_keys($command->subCommands()))
                 ->map('strlen')
