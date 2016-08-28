@@ -305,11 +305,12 @@ abstract class Command {
     public function run($args = null, CLImate $console = null)
     {
         try {
-
-            if (null === $args)
+            if (null === $args) {
                 $args = $this->consoleArguments();
-            if (null === $console)
+            }
+            if (null === $console) {
                 $console = new CLImate;
+            }
 
             $firstArg = F\head(F\split(' ', $args));
             if ($this->hasCommand($firstArg)) {
@@ -323,11 +324,10 @@ abstract class Command {
                         ->then(F\join(PHP_EOL))
                         ->get();
                     $this->error($errors);
-                }
-
-                else
+                } else {
                     $this->args($this->syntax()->parse($args))
                          ->execute();
+                }
             }
         } catch (\Exception $e) {
             $this->error(
@@ -391,7 +391,6 @@ abstract class Command {
     {
         $this->console->style->addCommand('error', 'white');
         $this->console->backgroundRed()->error($message);
-        exit(1);
     }
 
     /**

@@ -7,7 +7,9 @@ use Tarsana\Command\SubCommand;
 use Tarsana\Syntax\ArraySyntax;
 use Tarsana\Syntax\ObjectSyntax;
 
-
+/**
+ * The default help subcommand
+ */
 class HelpCommand extends SubCommand {
 
     protected function init ()
@@ -28,6 +30,12 @@ class HelpCommand extends SubCommand {
             $this->showHelpOf($this->parent->command($command));
     }
 
+    /**
+     * Shows the help of a specific command.
+     *
+     * @param  Command $command
+     * @return void
+     */
     protected function showHelpOf (Command $command)
     {
         $c = $this->console();
@@ -75,7 +83,15 @@ class HelpCommand extends SubCommand {
         }
     }
 
-    protected function showSyntax($name, $syntax, $level)
+    /**
+     * Shows the syntax description of a part of arguments.
+     *
+     * @param  string $name
+     * @param  Tarsana\Syntax\Syntax $syntax
+     * @param  int $level
+     * @return void
+     */
+    protected function showSyntax($name, Syntax $syntax, $level)
     {
         $type = $this->typeOf($syntax);
         $c = $this->console->inline(str_repeat(' ', $level))
@@ -103,6 +119,14 @@ class HelpCommand extends SubCommand {
         }
     }
 
+    /**
+     * Retuns a string representation of the given syntax.
+     * {:,name,#age}    -> name:age
+     * {:,name,#age}[,] -> name:age,...
+     *
+     * @param  Syntax $syntax
+     * @return string
+     */
     protected function typeOf(Syntax $syntax)
     {
         if ($syntax instanceof ObjectSyntax) {

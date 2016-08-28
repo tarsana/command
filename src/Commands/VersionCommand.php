@@ -1,10 +1,10 @@
 <?php namespace Tarsana\Command\Commands;
 
-use Tarsana\Command\Command;
 use Tarsana\Command\SubCommand;
-use Tarsana\Syntax\Factory as S;
 
-
+/**
+ * The default subcommand to show version of a command.
+ */
 class VersionCommand extends SubCommand {
 
     protected function init ()

@@ -1,10 +1,12 @@
 <?php namespace Tarsana\Command;
 
-use Tarsana\Command\Interfaces\TemplateLoaderInterface;
-use Tarsana\Command\Exceptions\TemplateNameConflict;
-use Tarsana\Functional\Stream as s;
-use Tarsana\Functional as F;
 use Tarsana\IO\Filesystem;
+use Tarsana\Functional as F;
+use Tarsana\IO\Filesystem\File;
+use Tarsana\Functional\Stream as s;
+use Tarsana\Command\Exceptions\TemplateNotFound;
+use Tarsana\Command\Exceptions\TemplateNameConflict;
+use Tarsana\Command\Interfaces\TemplateLoaderInterface;
 
 /**
  * This is the all-in-one template loader, it can decide
@@ -90,10 +92,10 @@ class TemplateLoader implements TemplateLoaderInterface {
         $files = s::of($this->fs->find("{$name}.*"))
             ->call('files')
             ->call('asArray')
-            ->filter(function($file) use($suportedExtensions) {
+            ->filter(function(File $file) use($suportedExtensions) {
                 return in_array($file->extension(), $suportedExtensions);
             })
-            ->map(function($file) use ($fsPathLength) {
+            ->map(function(File $file) use ($fsPathLength) {
                 return [
                     'name' => substr($file->path(), $fsPathLength),
                     'extension' => $file->extension()

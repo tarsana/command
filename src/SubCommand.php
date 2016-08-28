@@ -1,7 +1,6 @@
 <?php namespace Tarsana\Command;
 
 use Tarsana\Command\Command;
-use Tarsana\Command\Commands\HelpCommand;
 
 /**
  * A SubCommand which has a parent command and can access it.
