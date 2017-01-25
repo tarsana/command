@@ -11,21 +11,18 @@
     ],
     "autoload": {
         "psr-4": {
-            "Tarsana\\Command\\": "src/"
+            "Tarsana\\Command\\": "src/",
+            "Tarsana\\Tester\\": "tester/",
+            "Tarsana\\Command\\Tests\\": "tests"
         }
     },
-    "minimum-stability": "dev",
-    "require": {
-        "league/climate": "^3.2",
-        "twig/twig": "^1.24",
-        "tarsana/functional": "dev-master",
-        "tarsana/io": "dev-master",
-        "tarsana/syntax": "dev-master"
-    },
+    "minimum-stability": "alpha",
     "require-dev": {
-        "symfony/var-dumper": "^2.8",
-        "codeception/codeception": "^2.2",
-        "mockery/mockery": "^0.9.5",
-        "satooshi/php-coveralls": "~1.0"
+        "phpunit/phpunit": "^6.3"
+    },
+    "require": {
+        "tarsana/io": "^2.0",
+        "tarsana/syntax": "^2.0",
+        "twig/twig": "^2.4"
     }
 }

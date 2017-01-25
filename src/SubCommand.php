@@ -21,8 +21,14 @@ abstract class SubCommand extends Command {
      */
     public function __construct(Command $parent)
     {
-        $this->parent = $parent;
         parent::__construct();
+        $this->parent = $parent;
+        $this->console = $parent->console;
+    }
+
+    protected function setupSubCommands()
+    {
+        return $this;
     }
 
     /**
@@ -31,7 +37,7 @@ abstract class SubCommand extends Command {
      * @param  Tarsana\Command\Command|null
      * @return Tarsana\Command\Command
      */
-    public function parent($value = null)
+    public function parent(Command $value = null)
     {
         if (null === $value) {
             return $this->parent;
