@@ -14,12 +14,13 @@
             "Tarsana\\Command\\": "src/"
         }
     },
+    "minimum-stability": "dev",
     "require": {
         "league/climate": "^3.2",
         "twig/twig": "^1.24",
-        "tarsana/functional": "~1.0",
-        "tarsana/io": "~2.0",
-        "tarsana/syntax": "~1.3"
+        "tarsana/functional": "dev-master",
+        "tarsana/io": "dev-master",
+        "tarsana/syntax": "dev-master"
     },
     "require-dev": {
         "symfony/var-dumper": "^2.8",
