@@ -1,279 +1,226 @@
 <?php namespace Tarsana\Command;
 
-use Tarsana\IO\Filesystem;
-use League\CLImate\CLImate;
-use Tarsana\Functional as F;
-use Tarsana\Functional\Stream;
-use Tarsana\Command\Environment;
-use Tarsana\Command\TemplateLoader;
 use Tarsana\Command\Commands\HelpCommand;
-use Tarsana\Command\Syntax\SyntaxBuilder;
 use Tarsana\Command\Commands\VersionCommand;
-use Tarsana\Command\Exceptions\CommandNotFound;
-use Tarsana\Command\Exceptions\NullPropertyAccess;
-use Tarsana\Command\Interfaces\TemplateLoaderInterface;
+use Tarsana\Command\Console\Console;
+use Tarsana\Command\Console\ExceptionPrinter;
+use Tarsana\Command\Interfaces\Console\ConsoleInterface;
+use Tarsana\Command\Interfaces\Template\TemplateLoaderInterface;
+use Tarsana\Command\SubCommand;
+use Tarsana\Command\Template\TemplateLoader;
+use Tarsana\IO\Filesystem;
+use Tarsana\IO\FilesystemInterface;
+use Tarsana\Syntax\Exceptions\ParseException;
+use Tarsana\Syntax\Factory as S;
+use Tarsana\Syntax\Text as T;
 
-/**
- * An abstract command class; the parent of all commands.
- */
-abstract class Command {
+class Command {
 
-    /**
-     * The command name.
-     *
-     * @var string
-     */
     protected $name;
-
-    /**
-     * The command description.
-     *
-     * @var string
-     */
+    protected $version;
     protected $description;
 
-    /**
-     * The command version.
-     *
-     * @var string
-     */
-    protected $version;
+    protected $syntax;
+    protected $descriptions;
 
-    /**
-     * Syntax builder; it provides a syntax which
-     * is used to parse the command input.
-     *
-     * @var Tarsana\Command\Syntax\SyntaxBuilder
-     */
-    protected $syntaxBuilder;
-
-    /**
-     * List of sub commands
-     *
-     * @var Tarsana\Command\Command[]
-     */
-    protected $subCommands;
-
-    /**
-     * Command line reader/writer.
-     *
-     * @var League\CLImate\CLImate
-     */
-    protected $console;
-
-    /**
-     * The result of parsing the input using syntaxes.
-     *
-     * @var mixed
-     */
+    protected $options;
     protected $args;
 
-    /**
-     * Filesystem handler.
-     *
-     * @var Tarsana\IO\Filesystem
-     */
+    protected $action;
+    protected $commands;
+
+    protected $console;
     protected $fs;
+    protected $templatesLoader;
 
-    /**
-     * Templates loader.
-     *
-     * @var Tarsana\Command\Interfaces\TemplateLoaderInterface
-     */
-    protected $templateLoader;
+    public static function create(callable $action = null) {
+        $command = new Command;
+        if (null !== $action)
+            $command->action($action);
+        return $command;
+    }
 
-    /**
-     * Creates a new Command.
-     */
     public function __construct()
     {
-        $this->templateLoader = new TemplateLoader;
-        $this->fs = new Filesystem('.');
-        $this->syntaxBuilder = SyntaxBuilder::of('');
-        $this->description = '...';
-        $this->version = '0.0.1';
-        $this->name = 'unknown';
-        $this->console = null;
-        $this->args = null;
-
-        $this->addDefaultSubCommands();
-        $this->init();
+        $this->commands = [];
+        $this->setupSubCommands()
+             ->name('Unknown')
+             ->version('1.0.0')
+             ->description('...')
+             ->descriptions([])
+             ->options([])
+             ->console(new Console)
+             ->fs(new Filesystem('.'))
+             ->init();
     }
 
     /**
-     * Name getter and setter.
+     * name getter and setter.
      *
-     * @param  string|void $value
-     * @return string|self
+     * @param  string
+     * @return mixed
      */
-    public function name($value = null)
+    public function name(string $value = null)
     {
-        if (null === $value)
+        if (null === $value) {
             return $this->name;
-
+        }
         $this->name = $value;
-        return $this;
-    }
-
-    /**
-     * Description getter and setter.
-     *
-     * @param  string|void $value
-     * @return string|self
-     */
-    public function description($value = null)
-    {
-        if (null === $value)
-            return $this->description;
-
-        $this->description = $value;
         return $this;
     }
 
     /**
      * version getter and setter.
      *
-     * @param  string|void $value
-     * @return string|self
+     * @param  string
+     * @return mixed
      */
-    public function version($value = null)
+    public function version(string $value = null)
     {
-        if (null === $value)
+        if (null === $value) {
             return $this->version;
-
+        }
         $this->version = $value;
         return $this;
     }
 
     /**
-     * Console getter and setter.
+     * description getter and setter.
      *
-     * @param  League\CLImate\CLImate|void $value
-     * @return League\CLImate\CLImate|self
+     * @param  string
+     * @return mixed
      */
-    public function console($value = null)
-    {
-        if (null === $value)
-            return $this->console;
-
-        $this->console = $value;
-        return $this;
-    }
-
-    /**
-     * Syntax getter and setter.
-     *
-     * @param  Tarsana\Syntax\Syntax|string|null $value
-     * @return Tarsana\Syntax\Syntax|self
-     * @throws InvalidArgumentException
-     */
-    public function syntax($value = null)
-    {
-        if (null === $value)
-            return $this->syntaxBuilder->get();
-
-        $this->syntaxBuilder = SyntaxBuilder::of($value);
-
-        return $this;
-    }
-
-    /**
-     * Describes a field or subfield of the syntax.
-     * `$name` has the format "field.subfield...".
-     *
-     * @param  string $name
-     * @param  string $description
-     * @param  mixed  $default
-     * @return self
-     */
-    public function describe($name, $description, $default = null)
-    {
-        $this->syntaxBuilder->describe($name, $description, $default);
-        return $this;
-    }
-
-    /**
-     * subCommands getter and setter.
-     *
-     * @param  array|null
-     * @return array|self
-     */
-    public function subCommands($value = null)
+    public function description(string $value = null)
     {
         if (null === $value) {
-            return $this->subCommands;
+            return $this->description;
         }
-        $this->subCommands = $value;
+        $this->description = $value;
         return $this;
     }
 
     /**
-     * adds/overrides or gets a sub command.
+     * descriptions getter and setter.
      *
-     * @param  string  $name
-     * @param  Tarsana\Command\Command|null $cmd
-     * @return Tarsana\Command\Command
-     * @throws Tarsana\Command\Exceptions\CommandNotFound
+     * @param  string
+     * @return mixed
      */
-    public function command($name, Command $cmd = null)
+    public function descriptions(array $value = null)
     {
-        if (null === $cmd) {
-            if (!$this->hasCommand($name))
-                throw new CommandNotFound("Command '{$this->name}' has no subcommand '{$name}'");
-            return $this->subCommands[$name];
+        if (null === $value) {
+            return $this->descriptions;
         }
-
-        $this->subCommands[$name] = $cmd;
+        $this->descriptions = $value;
         return $this;
     }
 
     /**
-     * Checks if a sub command with the provided name exists.
+     * syntax getter and setter.
      *
-     * @param  string  $name
-     * @return boolean
+     * @param  string|null $syntax
+     * @return Syntax|self
      */
-    public function hasCommand($name) {
-        return isset($this->subCommands[$name]);
+    public function syntax(string $syntax = null)
+    {
+        if (null === $syntax)
+            return $this->syntax;
+
+        $this->syntax = S::syntax()->parse("{{$syntax}| }");
+        return $this;
+    }
+
+    /**
+     * options getter and setter.
+     *
+     * @param  array
+     * @return mixed
+     */
+    public function options(array $options = null)
+    {
+        if (null === $options) {
+            return $this->options;
+        }
+
+        $this->options = [];
+        foreach($options as $option)
+            $this->options[$option] = false;
+
+        return $this;
+    }
+
+    /**
+     * option getter.
+     *
+     * @param  string
+     * @return mixed
+     */
+    public function option(string $name)
+    {
+        if (!array_key_exists($name, $this->options))
+            throw new \InvalidArgumentException("Unknown option '{$name}'");
+        return $this->options[$name];
     }
 
     /**
      * args getter and setter.
      *
-     * @param  stdClass|null
-     * @return stdClass|self
+     * @param  stdClass
+     * @return mixed
      */
-    public function args($value = null)
+    public function args(\stdClass $value = null)
     {
-        if (null === $value)
+        if (null === $value) {
             return $this->args;
-
+        }
         $this->args = $value;
         return $this;
     }
 
     /**
-     * Filesystem getter and setter.
+     * console getter and setter.
      *
-     * @param  Tarsana\IO\Filesystem|null
-     * @return Tarsana\IO\Filesystem|self
+     * @param  ConsoleInterface
+     * @return mixed
      */
-    public function fs(Filesystem $value = null)
+    public function console(ConsoleInterface $value = null)
     {
         if (null === $value) {
-            return $this->fs;
+            return $this->console;
         }
-        $this->fs = $value;
+        $this->console = $value;
+        foreach ($this->commands as $name => $command) {
+            $command->console = $value;
+        }
         return $this;
     }
 
     /**
-     * Templates Loader getter and setter.
+     * fs getter and setter.
      *
-     * @param  Tarsana\Command\Interfaces\TemplateLoaderInterface|null
-     * @return Tarsana\Command\Interfaces\TemplateLoaderInterface|self
+     * @param  Tarsana\IO\Filesystem|string
+     * @return mixed
      */
-    public function templateLoader(TemplateLoaderInterface $value = null)
+    public function fs($value = null)
+    {
+        if (null === $value) {
+            return $this->fs;
+        }
+        if (is_string($value))
+            $value = new Filesystem($value);
+        $this->fs = $value;
+        foreach ($this->commands as $name => $command) {
+            $command->fs = $value;
+        }
+        return $this;
+    }
+
+    /**
+     * templatesLoader getter and setter.
+     *
+     * @param  Tarsana\Command\Interfaces\Template\TemplateLoaderInterface
+     * @return mixed
+     */
+    public function templatesLoader(TemplateLoaderInterface $value = null)
     {
         if (null === $value) {
             return $this->templatesLoader;
@@ -282,145 +229,136 @@ abstract class Command {
         return $this;
     }
 
-    /**
-     * Sets the template paths.
-     *
-     * @param  string $templatesPath
-     * @param  string $cachePath
-     * @return self
-     */
-    public function templatePaths($templatesPath, $cachePath = null)
-    {
-        $this->templateLoader->init($templatesPath, $cachePath);
+    public function templatesPath(string $path, string $cachePath = null) {
+        $this->templatesLoader = new TemplateLoader($path, $cachePath);
         return $this;
     }
 
+    public function template(string $name) {
+        if (null == $this->templatesLoader)
+            throw new \Exception("Please initialize the templates loader before trying to load templates!");
+        return $this->templatesLoader->load($name);
+    }
+
     /**
-     * Runs the command.
+     * action getter and setter.
      *
-     * @param  string|null $args
-     * @param  League\CLImate\CLImate|null $console
-     * @return void
+     * @param  callable
+     * @return mixed
      */
-    public function run($args = null, CLImate $console = null)
+    public function action(callable $value = null)
+    {
+        if (null === $value) {
+            return $this->action;
+        }
+        $this->action = $value;
+        return $this;
+    }
+
+    public function command(string $name, Command $command = null)
+    {
+        if (null === $command) {
+            if (!array_key_exists($name, $this->commands))
+                throw new \InvalidArgumentException("subcommand '{$name}' not found!");
+            return $this->commands[$name];
+        }
+        $this->commands[$name] = $command;
+        return $this;
+    }
+
+    protected function setupSubCommands()
+    {
+        return $this->command('--help', new HelpCommand($this))
+             ->command('--version', new VersionCommand($this));
+    }
+
+    public function describe(string $name, string $description = null)
+    {
+        if (null === $description)
+            return array_key_exists($name, $this->descriptions)
+                ? $this->descriptions[$name] : '';
+        if (substr($name, 0, 2) == '--' && array_key_exists($name, $this->options())) {
+            $this->descriptions[$name] = $description;
+            return $this;
+        }
+        try {
+            $this->syntax->field($name);
+            // throws exception if field is missing
+            $this->descriptions[$name] = $description;
+            return $this;
+        } catch (\Exception $e) {
+            throw new \InvalidArgumentException("Unknown field '{$name}'");
+        }
+    }
+
+    public function run(array $args = null, array $options = [], bool $rawArgs = true)
     {
         try {
-            if (null === $args) {
-                $args = $this->consoleArguments();
-            }
-            if (null === $console) {
-                $console = new CLImate;
-            }
+            $this->clear();
 
-            $firstArg = F\head(F\split(' ', $args));
-            if ($this->hasCommand($firstArg)) {
-                $args = F\join(' ', F\tail(F\split(' ', $args)));
-                $this->command($firstArg)->run($args, $console);
+            if ($rawArgs) {
+                if (null === $args) {
+                    $args = $GLOBALS['argv'];
+                    array_shift($args);
+                }
+
+                if (!empty($args) && array_key_exists($args[0], $this->commands)) {
+                    $name = $args[0];
+                    array_shift($args);
+                    return $this->command($name)->run($args);
+                }
+
+                $this->parseArguments($args);
             } else {
-                $this->console($console);
-                if (! $this->syntax()->canParse($args)) {
-                    $errors = F\s($this->syntax()->checkParse($args))
-                        ->then(F\append("Invalid arguments: '{$args}' for command '{$this->name}'"))
-                        ->then(F\join(PHP_EOL))
-                        ->get();
-                    $this->error($errors);
-                } else {
-                    $this->args($this->syntax()->parse($args))
-                         ->execute();
+                $this->args = (object) $args;
+                foreach ($options as $name) {
+                    if (!array_key_exists($name, $this->options))
+                        throw new \Exception("Unknown option '{$name}'");
+                    $this->options[$name] = true;
                 }
             }
+
+            if (null === $this->action)
+                $this->execute();
+            else
+                ($this->action)($this);
         } catch (\Exception $e) {
-            $this->error(
-                $e->getMessage()
-                . PHP_EOL . PHP_EOL .
-                $e->getTraceAsString()
-            );
+            $this->handleError($e);
         }
     }
 
-    /**
-     * Loads a template by name.
-     *
-     * @param  string $name
-     * @return Tarsana\Command\Interfaces\TemplateInterface
-     */
-    protected function template($name)
+    public function clear()
     {
-        if (null === $this->templateLoader)
-            throw new NullPropertyAccess("The templatesLoader is not initialized; Please set it before trying to load a template !");
-
-        return $this->templateLoader->load($name);
-    }
-
-    /**
-     * Returns command line arguments as string.
-     *
-     * @return string
-     */
-    protected function consoleArguments()
-    {
-        return Stream::of($_SERVER['argv'])    // ['script.php', foo', 'lorem ipsum']
-            ->then(F\f('tail'))                // ['foo', 'lorem ipsum']
-            ->map(function($arg) {
-                return (F\contains(' ', $arg))
-                    ? "\"{$arg}\""
-                    : $arg;
-            })                                 // ['foo', '"lorem ipsum"']
-            ->then(F\join(' '))                // 'foo "lorem ipsum"'
-            ->get();
-    }
-
-    /**
-     * Adds Help and Version sub commands.
-     */
-    protected function addDefaultSubCommands()
-    {
-        if (! ($this instanceof HelpCommand) && ! ($this instanceof VersionCommand)) {
-            $this->command('--version', new VersionCommand($this));
-            $this->command('--help', new HelpCommand($this));
+        $this->args = null;
+        foreach($this->options as $name => $value) {
+            $this->options[$name] = false;
         }
     }
 
-    /**
-     * Shows an error message and stops the execution of the command.
-     *
-     * @param  string $message
-     * @return void
-     */
-    protected function error($message)
+    public function parseArguments(array $args)
     {
-        $this->console->style->addCommand('error', 'white');
-        $this->console->backgroundRed()->error($message);
+        if (null === $this->syntax) {
+            $this->args = null;
+            return;
+        }
+
+        $arguments = [];
+        foreach ($args as &$arg) {
+            if (array_key_exists($arg, $this->options))
+                $this->options[$arg] = true;
+            else
+                $arguments[] = $arg;
+        }
+        $arguments = T::join($arguments, ' ');
+        $this->args = $this->syntax->parse($arguments);
     }
 
-    /**
-     * Calls a command on the environment store.
-     *
-     * @param  string  $name
-     * @param  string  $args
-     * @param  CLImate $console
-     * @return void
-     */
-    protected function call($name, $args = null, CLImate $console = null)
-    {
-        return Environment::get()
-            ->command($name)
-            ->run($args, $console);
+    protected function handleError(\Exception $e) {
+        $output = (new ExceptionPrinter)->print($e);
+        $this->console()->error($output);
     }
 
-    /**
-     * Initializes the command. Override it to set the command
-     * description, version, syntax, filesystem, templates
-     * laoder and any other configuration.
-     *
-     * @return void
-     */
     protected function init() {}
+    protected function execute() {}
 
-    /**
-     * The logic of the command goes in this method.
-     *
-     * @return self
-     */
-    abstract protected function execute();
 }
