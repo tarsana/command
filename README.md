@@ -1,6 +1,7 @@
 # Tarsana Command
 
 [![Build Status](https://travis-ci.org/tarsana/command.svg?branch=master)](https://travis-ci.org/tarsana/command)
+[![Coverage Status](https://coveralls.io/repos/github/tarsana/command/badge.svg?branch=master)](https://coveralls.io/github/tarsana/command?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tarsana/command/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/tarsana/command/?branch=master)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/467aafde-761d-4f8d-afe4-a5eec105f27d/mini.png)](https://insight.sensiolabs.com/projects/467aafde-761d-4f8d-afe4-a5eec105f27d)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/tarsana/command/blob/master/LICENSE)

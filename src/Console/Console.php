@@ -35,7 +35,7 @@ class Console implements ConsoleInterface {
             '<br>'  => PHP_EOL
         ];
         foreach ($aliases as $name => $value) {
-            $this->outTransformer->alias($name, $value);
+            $this->outTransformer()->alias($name, $value);
         }
     }
 
@@ -74,7 +74,7 @@ class Console implements ConsoleInterface {
 
     public function out(string $text) : ConsoleInterface
     {
-        $this->out->write($this->outTransformer->transform($text));
+        $this->out->write($this->outTransformer()->transform($text));
         return $this;
     }
 
@@ -86,12 +86,12 @@ class Console implements ConsoleInterface {
     public function error(string $text) : ConsoleInterface
     {
         $text = "<error>{$text}</error><br>";
-        $this->err->write($this->outTransformer->transform($text));
+        $this->err->write($this->outTransformer()->transform($text));
         return $this;
     }
 
     public function read() : string
     {
-        return $this->in->read();
+        return $this->in()->read();
     }
 }

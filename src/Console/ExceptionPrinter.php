@@ -19,7 +19,7 @@ class ExceptionPrinter {
     public function print(\Exception $e) : string
     {
         if ($e instanceof ParseException)
-            return $this->printParseException($e, true);
+            return $this->printParseException($e);
 
         return "<error>{$e}</error>";
     }
@@ -46,11 +46,16 @@ class ExceptionPrinter {
             }
         }
         $syntax = $this->printSyntax($e->syntax());
-        $output = "<reset>Failed to parse <warn>'{$e->input()}'</warn> as <info>{$syntax}</info> <error>{$error}</error>";
+
+        $output = "<reset>Failed to parse <warn>'{$e->input()}'</warn> as <info>{$syntax}</info>";
+        if ('' != $error)
+            $output .= " <error>{$error}</error>";
+
         $previous = $e->previous();
         if ($previous) {
-            $output .= PHP_EOL . $this->printParseException($previous);
+            $output .= '<br>' . $this->printParseException($previous);
         }
+
         return $output;
     }
 

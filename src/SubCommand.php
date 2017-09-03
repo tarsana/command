@@ -5,7 +5,7 @@ use Tarsana\Command\Command;
 /**
  * A SubCommand which has a parent command and can access it.
  */
-abstract class SubCommand extends Command {
+class SubCommand extends Command {
 
     /**
      * The parent command.

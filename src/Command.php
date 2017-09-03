@@ -235,7 +235,7 @@ class Command {
     }
 
     public function template(string $name) {
-        if (null == $this->templatesLoader)
+        if (null === $this->templatesLoader)
             throw new \Exception("Please initialize the templates loader before trying to load templates!");
         return $this->templatesLoader->load($name);
     }
