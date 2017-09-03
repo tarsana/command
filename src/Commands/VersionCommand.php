@@ -4,6 +4,12 @@ use Tarsana\Command\SubCommand;
 
 class VersionCommand extends SubCommand {
 
+    protected function init()
+    {
+        $this->name('Version')
+             ->description('Shows the version');
+    }
+
     protected function execute()
     {
         $command = $this->parent();

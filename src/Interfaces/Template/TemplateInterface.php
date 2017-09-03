@@ -26,5 +26,5 @@ interface TemplateInterface {
      *
      * @return self
      */
-    public function clean() : TemplateInterface;
+    public function clear() : TemplateInterface;
 }

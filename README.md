@@ -8,8 +8,6 @@
 
 A library to build command line applications using PHP.
 
-**This library is still under development, any suggestions are welcome :)**
-
 # Table of Contents
 
 - [Installation](#installation)
@@ -40,8 +38,6 @@ Install it using Composer
 composer require tarsana/command
 ```
 
-**Note: Since the library is still under development, you will need to set `"minimum-stability": "dev"` in your `composer.json` file to try it.** 
-
 # Your First Command
 
 Let's write a "Hello World" command. Create a file `hello.php` with the following content:
@@ -56,7 +52,7 @@ class HelloWorld extends Command {
 
     protected function execute()
     {
-        $this->console->out('Hello World');
+        $this->console->line('Hello World');
     }
 
 }
@@ -74,7 +70,7 @@ Hello World
 
 Congratulations, you have just written your first command :D
 
-As you see, `Tarsana\Command\Command` is an abstract class providing the basic features of a command. Every command should extend it and implement the `execute()` method.
+As you see, `Tarsana\Command\Command` is a class providing the basic features of a command. Every command should extend it and implement the `execute()` method.
 
 # Initializing The Command
 
@@ -92,7 +88,7 @@ class HelloWorld extends Command {
 
     protected function execute()
     {
-        $this->console->out('Hello World');
+        $this->console->line('Hello World');
     }
 
 }
@@ -109,30 +105,9 @@ $this->name(); // calling it without parameter will get the value of name
 
 # Showing The Help And Version Of A Command	
 
-To show the version of a command, we use the `--version` flag (we will learn after that this is actually a sub command). So runing 
+To show the version of a command, we use the `--version` flag (we will learn after that this is actually a sub command). We also have the `--help` to show the help message:
 
-```
-php hello.php --version
-```
-
-will show
-
-```
-Hello World version 1.0.0-alpha
-```
-
-We also have the `--help` to show the help message:
-
-```
-Hello World 1.0.0-alpha
-
-Shows a "Hello World" message
-
-Arguments: none
-Subcommands:
-	--help                Shows help message
-	--version             Shows the version of the command
-``` 
+![Show version and help message](https://raw.githubusercontent.com/tarsana/command/master/docs/screenshots/hello-version-help.png)
 
 # Reading & Writing to The Console
 

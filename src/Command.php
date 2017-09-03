@@ -42,8 +42,8 @@ class Command {
 
     public function __construct()
     {
-        $this->commands = [];
-        $this->setupSubCommands()
+        $this->commands([])
+             ->setupSubCommands()
              ->name('Unknown')
              ->version('1.0.0')
              ->description('...')
@@ -226,11 +226,17 @@ class Command {
             return $this->templatesLoader;
         }
         $this->templatesLoader = $value;
+        foreach ($this->commands as $name => $command) {
+            $command->templatesLoader = $value;
+        }
         return $this;
     }
 
     public function templatesPath(string $path, string $cachePath = null) {
         $this->templatesLoader = new TemplateLoader($path, $cachePath);
+        foreach ($this->commands as $name => $command) {
+            $command->templatesLoader = $this->templatesLoader();
+        }
         return $this;
     }
 
@@ -252,6 +258,24 @@ class Command {
             return $this->action;
         }
         $this->action = $value;
+        return $this;
+    }
+
+    /**
+     * commands getter and setter.
+     *
+     * @param  array
+     * @return mixed
+     */
+    public function commands(array $value = null)
+    {
+        if (null === $value) {
+            return $this->commands;
+        }
+        $this->commands = [];
+        foreach ($value as $name => $command) {
+            $this->command($name, $command);
+        }
         return $this;
     }
 

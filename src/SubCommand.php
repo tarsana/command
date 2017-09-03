@@ -22,8 +22,8 @@ class SubCommand extends Command {
     public function __construct(Command $parent)
     {
         parent::__construct();
-        $this->parent = $parent;
-        $this->console = $parent->console;
+        $this->parent($parent)
+             ->console($parent->console);
     }
 
     protected function setupSubCommands()

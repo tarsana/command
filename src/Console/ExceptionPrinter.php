@@ -41,7 +41,7 @@ class ExceptionPrinter {
             if ($i['type'] == 'missing-field')
                 $error = "{$i['field']} is missing!";
             if ($i['type'] == 'additional-items') {
-                $items = implode(', ', $i['items']);
+                $items = implode($syntax->separator(), $i['items']);
                 $error = "additional items {$items}";
             }
         }

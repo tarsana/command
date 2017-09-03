@@ -8,6 +8,12 @@ use Tarsana\Syntax\Syntax;
 
 class HelpCommand extends SubCommand {
 
+    protected function init()
+    {
+        $this->name('Help')
+             ->description('Shows the help message');
+    }
+
     protected function execute()
     {
         $c = $this->console();
@@ -29,6 +35,14 @@ class HelpCommand extends SubCommand {
             foreach ($options as $name) {
                 $description = $this->parent()->describe($name);
                 $c->line("<tab><warn>{$name}</warn> {$description}");
+            }
+        }
+
+        $subCommands = $this->parent()->commands();
+        if (!empty($subCommands)) {
+            $c->line("SubCommands:");
+            foreach ($subCommands as $name => $cmd) {
+                $c->line("<tab><warn>{$name}</warn> {$cmd->description()}");
             }
         }
     }

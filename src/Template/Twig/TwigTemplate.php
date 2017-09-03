@@ -52,7 +52,7 @@ class TwigTemplate implements TemplateInterface {
      *
      * @return self
      */
-    public function clean () : TemplateInterface
+    public function clear () : TemplateInterface
     {
         $this->data = [];
         return $this;
