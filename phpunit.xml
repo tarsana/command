@@ -22,5 +22,8 @@
         <testsuite name="Tarsana Command Test Suite">
             <directory>./tests/</directory>
         </testsuite>
+        <testsuite name="Tarsana Command Examples Test Suite">
+            <directory>./examples/tests/</directory>
+        </testsuite>
     </testsuites>
 </phpunit>

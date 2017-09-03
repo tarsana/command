@@ -290,6 +290,11 @@ class Command {
         return $this;
     }
 
+    public function hasCommand(string $name) : bool
+    {
+        return array_key_exists($name, $this->commands);
+    }
+
     protected function setupSubCommands()
     {
         return $this->command('--help', new HelpCommand($this))

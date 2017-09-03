@@ -92,6 +92,17 @@ class Console implements ConsoleInterface {
 
     public function read() : string
     {
-        return $this->in()->read();
+        return $this->in->read();
+    }
+
+    public function readLine() : string
+    {
+        return $this->in->readLine();
+    }
+
+    public function alias(string $name, string $value) : ConsoleInterface
+    {
+        $this->outTransformer->alias($name, $value);
+        return $this;
     }
 }

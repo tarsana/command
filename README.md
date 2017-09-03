@@ -2,11 +2,9 @@
 
 [![Build Status](https://travis-ci.org/tarsana/command.svg?branch=master)](https://travis-ci.org/tarsana/command)
 [![Coverage Status](https://coveralls.io/repos/github/tarsana/command/badge.svg?branch=master)](https://coveralls.io/github/tarsana/command?branch=master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tarsana/command/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/tarsana/command/?branch=master)
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/467aafde-761d-4f8d-afe4-a5eec105f27d/mini.png)](https://insight.sensiolabs.com/projects/467aafde-761d-4f8d-afe4-a5eec105f27d)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/tarsana/command/blob/master/LICENSE)
 
-A library to build command line applications using PHP.
+A library to build command line applications using PHP. This is part of the [Tarsana Project](https://github.com/tarsana/tarsana).
 
 # Table of Contents
 
@@ -18,9 +16,9 @@ A library to build command line applications using PHP.
 
 - [Showing The Help And Version Of A Command](#showing-the-help-and-version-of-a-command)
 
-- [Reading & Writing to The Console](#reading-writing-to-the-console)
+- [Reading & Writing to The Console](#reading--writing-to-the-console)
 
-- [Defining Arguments](#defining-arguments)
+- [Defining Arguments and Options](#defining-arguments-and-options)
 
 - [Handeling The Filesystem](#handeling-the-filesystem)
 
@@ -28,7 +26,11 @@ A library to build command line applications using PHP.
 
 - [Adding SubCommands](#adding-sub-commands)
 
-- [Calling Other Commands](#calling-other-commands)
+- [Testing Commands](#testing-commands)
+
+- [What's Next](#whats-next)
+
+- [Development Notes](#development-notes)
 
 # Installation
 
@@ -111,13 +113,78 @@ To show the version of a command, we use the `--version` flag (we will learn aft
 
 # Reading & Writing to The Console
 
-The attribute `console` is used to handle the reading and writing operations to the console. It is using the awesome library [CLImate](http://climate.thephpleague.com/) that you should check to learn more about how to read and write to the console.
+The attribute `console` is used to handle the reading and writing operations to the console.
 
-# Defining Arguments
+Let's update our command to read the user name:
 
-Even if `CLImate` provides a nice way to [Defines and parse arguments](http://climate.thephpleague.com/arguments/); I prefered to use [Syntax](https://github.com/tarsana/syntax) which is more easy and powerful. 
+```php
+protected function execute()
+{
+    $this->console->out('Your name: ');
+    $name = $this->console->readLine();
+    $this->console->line("Hello {$name}");
+}
+```
 
-Let's start with a command that repeats a word a number of times:
+```
+$ php hello.php
+Your name: Amine
+Hello Amine
+```
+
+- The `readLine()` method reads a line from the stdin and returns it as string.
+- The `out()` method writes some text to `stdout` (without a line break).
+- The `line()` method writes some text to `stdout` and adds a line break.
+- The `error()` method writes some text to `stderr` and adds a line break.
+
+The `Console` class provides some `tags` to control the output:
+
+```php
+$this->console->line('<background:15><color:19>Blue text on white background<reset>');
+$this->console->line('<background:124><color:15>White text on red background<reset>');
+```
+
+![Show colors in the console](https://raw.githubusercontent.com/tarsana/command/master/docs/screenshots/background-color.png)
+
+The `<background:$number>` and `<color:$number>` tags allows to set the background and foreground colors of the text to be written; the `<reset>` tag resets the default values. The colors are given as numbers from the 256-color mode.
+
+## List of supported tags
+
+- `<color:$n>`: Sets the foreground text to the color `$n` in 256-color mode.
+- `<background:$n>`: Sets the foreground text to the color `$n` in 256-color mode.
+- `<reset>`: Resets the formatting default values.
+- `<bold>`: Makes the text bold.
+- `<underline>`: Underlines the text.
+
+`Console` allows you also to define styles using aliases:
+
+```php
+$this->console->alias('<danger>', '<background:124><color:15><bold>');
+$this->console->alias('</danger>', '<reset>');
+
+$this->console->line('<danger>Some text</danger>');
+// is equivalent to
+$this->console->line('<background:124><color:15><bold>Some text<reset>');
+```
+
+Predefined aliases are:
+
+```php
+$this->console->line('<info> information text </info>');
+$this->console->line('<warn> warning text </warn>');
+$this->console->line('<success> success text </success>');
+$this->console->line('<error> error text </error>');
+$this->console->line('<tab>'); // prints four spaces "    " 
+$this->console->line('<br>'); // prints line break  PHP_EOL
+```
+
+![Console output aliases](https://raw.githubusercontent.com/tarsana/command/master/docs/screenshots/aliases.png)
+
+**Note:** tags and aliases can be used in all strings printed to the console, including the command and arguments descriptions.
+
+# Defining Arguments and Options
+
+The command syntax is defined using the [Syntax](https://github.com/tarsana/syntax) library. Let's start with a command that repeats a word a number of times:
 
 ```php
 class RepeatCommand extends Command {
@@ -127,74 +194,54 @@ class RepeatCommand extends Command {
         $this->name('Repeat')
              ->version('1.0.0')
              ->description('Repeats a word a number of times')
-             ->syntax('word #count')
+             ->syntax('word: string, count: (number: 3)')
+             ->options(['--upper'])
              ->describe('word', 'The word to repeat')
-             ->describe('count', 'The number of times to repeat the word', 3);
+             ->describe('count', 'The number of times to repeat the word')
+             ->describe('--upper', 'Converts the result to uppercase');
     }
 
     protected function execute()
     {
         $result = str_repeat($this->args->word, $this->args->count);
-        $this->console->out($result);
+        if ($this->option('--upper'))
+            $result = strtoupper($result);
+        $this->console->line($result);
     }
 
 }
 ```
 
-We are using the method `syntax()` to define the syntax of arguments. The syntax string defines the syntax of each argument seperated by space. To learn more about this syntax [Click here](https://github.com/tarsana/syntax). The `syntax()` method can also take an [ObjectSyntax](https://github.com/tarsana/syntax#parsing-and-dumping-objects) instead of a `string`.
+We are using the method `syntax()` to define the syntax of arguments. The string given to this method follows the [rules described here](https://github.com/tarsana/syntax#rules)
 
-The `describe()` method is used to describe an argument by providing a description and a default value to make it optional.
+The `describe()` method is used to describe an argument.
 
 When you define the syntax of the command; arguments are parsed automatically and available in the `execute()` method via the `args` attribute.
 
-The `help` subcommand shows full description of the arguments:
+The `help` subcommand shows full description of the arguments and options:
 
-```
-Repeat 1.0.0
-
-Repeats a word a number of times
-
-Arguments: word count
-  word [string] The word to repeat (Required)
-  count [number] The number of times to repeat the word (default: 3 )
-
-Subcommands:
-	--help                Shows help message
-	--version             Shows the version of the command
-```
+![Help message example](https://raw.githubusercontent.com/tarsana/command/master/docs/screenshots/repeat-help-message.png)
 
 And the result is:
 
 ```
 $ php repeat.php foo 5
 foofoofoofoofoo
-$ php repeat.php bar
-barbarbar
+$ php repeat.php bar --upper
+BARBARBAR
 ```
 
 In the second example, the `count` argument takes autmatically its default value.
 
-**Warning: Giving wrong arguments syntax generates an error**
+**Warning: Giving wrong arguments generates an error**
 
-```
-$ php repeat.php
-Unable to parse '' as 'string'
-Unable to parse the required field 'word' !
-Missing required field 'word'
-Invalid arguments: '' for command 'Repeat'
-```
-
-```
-$ php repeat.php foo 11 bar
-Too much items; 2 fields but got 3 items !
-Invalid arguments: 'foo 11 bar' for command 'Repeat'
-```
+![Parse error example](https://raw.githubusercontent.com/tarsana/command/master/docs/screenshots/repeat-args-missing.png)
 
 # Handeling The Filesystem
 
 The `fs` attribute is an instance of `Tarsana\IO\Filesystem` that you can use to handle files and directories. [Read the documentation](https://github.com/tarsana/io#handeling-files-and-directories) for the full API. 
 
-By default, the `Filesystem` instance pointes to the directory from which the command is run. You can also initialize it to with any directory you want:
+By default, the `Filesystem` instance pointes to the directory from which the command is run. You can also initialize it to any directory you want:
 
 ```php
 using Tarsana\IO\Filesystem;
@@ -207,7 +254,7 @@ protected function init()
 
 # Rendering Templates
 
-The `Command` class gives also possibility to render templates. The dafault template engine is [Twig](http://twig.sensiolabs.org) but you can use your favorite one by implementing the interfaces `TemplateLoaderInterface` and `TemplateInterface`.
+The `Command` class gives also possibility to render templates. The dafault template engine is [Twig](https://twig.symfony.com) but you can use your favorite one by implementing the interfaces `TemplateLoaderInterface` and `TemplateInterface`.
 
 Let's make a command which renders a simple template. For this we will create two files:
 
@@ -242,9 +289,9 @@ class RenderHelloCommand extends Command {
         $this
             ->name('Renders Simple Template')
             ->description('Renders a simple twig template')
-            ->syntax('[name]')
-            ->describe('name', 'Your name', 'You')
-            ->templatePaths(__DIR__.'/templates'); // defines the path to the templates
+            ->syntax('name: (string:You)')
+            ->describe('name', 'Your name')
+            ->templatesPath(__DIR__.'/templates'); // defines the path to the templates
     }
 
     protected function execute()
@@ -254,7 +301,7 @@ class RenderHelloCommand extends Command {
                 'name' => $this->args->name
             ]);
 
-        $this->console->out($message);
+        $this->console->line($message);
     }
 
 }
@@ -281,19 +328,19 @@ You can add subcommands while initializing your command.
 protected function init()
 {
     //...
-    // Assuming that FooCommand and BarCommand are two already defined
+    // Assuming that FooCommand and BarCommand are already defined
     $this->command('foo', new FooCommand)
          ->command('bar', new BarCommand); // this erases the subcommand with key 'bar' if exists
     // Or set all subcommands at once (this will erase any previous subcommands)
-    $this->subCommands([
+    $this->commands([
         'foo' => new FooCommand,
         'bar' => new BarCommand
     ]);
 
     // Later on you can get subcommands
-    $this->subCommands(); // returns all the subcommands as key-value array
+    $this->commands(); // returns all the subcommands as key-value array
     $this->command('name'); // gets the subcommand with the given name 
-    // will throw a Tarsana\Command\Exceptions\CommandNotFound if the subcommand is missing
+    // will throw an exception if the subcommand is missing
     $this->hasCommand('name'); // checks if a subcommand with the given name exists
 }
 ```
@@ -306,29 +353,159 @@ $ php your-script.php foo other arguments here
 
 The `FooCommand` will be run with `other arguments here` as arguments.
 
-# Calling Other Commands
+# Testing Commands
 
-What if you need to call command `Foo` from command `Bar`, but you don't want to add `Foo` as subcommand of `Bar`. You can still do it by adding the `Foo` command to the `Environment` before runing the `Bar` command:
+The class `Tarsana\Tester\CommandTestCase` extends `PHPUnit\Framework\TestCase` and adds useful methods to test Tarsana Commands.
+
+## Testing the Input and Output
+
+Let's write a test for our `HelloWorld` command above which reads the user name than shows the hello message.
 
 ```php
-using Tarsana\Command\Command;
-using Tarsana\Command\Environment;
+use Tarsana\Tester\CommandTestCase;
 
-class BarCommand extends Command {
-    // ...
-    protected function execute()
+class HelloWorldTest extends CommandTestCase {
+
+    public function test_it_prints_hello()
     {
-        $this->call('foo', 'command line arguments here');
-        // calls the 'foo' command from the environment with the given arguments
-        // if the second argument is not given, the FooCommand will try 
-        // to read arguments from the command line
+        $this->withStdin("Amine\n")
+             ->command(new HelloWorld)
+             ->prints("Your name:")
+             ->prints("Hello Amine<br>");
     }
-}
 
-// To add the Foo command to the environment
-// You can add it by class name so that an instance is created only when needed
-Environment::get()->command('foo', 'FooCommand');
-// Or add an instance directly
-Environment::get()->command('foo', new FooCommand);
+    public function test_it_shows_hello_world_version()
+    {
+        $this->command(new HelloWorld, ['--version'])
+             ->printsExactly("<info>Hello World</info> version <info>1.0.0-alpha</info><br>");
+    }
+
+}
 ```
 
+```php
+withStdin(string $content) : CommandTestCase;
+```
+
+Sets the content of the standard input of the command.
+
+```php
+command(Command $c, array $args = []) : CommandTestCase;
+```
+
+Runs the command `$c` with the standard input and `$args` then stores its outputs for further assertions.
+
+```php
+printsExactly(string $text) : CommandTestCase;
+prints(string $text) : CommandTestCase;
+printsError(string $text) : CommandTestCase;
+```
+
+- `printsExaclty` asserts that the standard output of the command equals `$text`. Note that [tags](#list-of-supported-tags) are not applied to allow testing them easily.
+
+- `prints` asserts that the standard output of the command contains `$text`.
+
+- `printsError` asserts that error output of the command contains `$text`.
+
+## Testing the Arguments and Options
+
+Let's now test the `RepeatCommand` above.
+
+```php
+class RepeatCommandTest extends CommandTestCase {
+
+    public function test_it_repeats_word_three_times()
+    {
+        $this->command(new RepeatCommand, ['foo'])
+             ->argsEqual((object) [
+                'word' => 'foo',
+                'count' => 3
+             ])
+             ->optionsEqual([
+                '--upper' => false
+             ])
+             ->printsExactly("foofoofoo<br>");
+    }
+
+    public function test_it_repeats_word_n_times_uppercase()
+    {
+        $this->command(new RepeatCommand, ['bar', '5', '--upper'])
+             ->argsEqual((object) [
+               'word' => 'bar',
+               'count' => 5
+             ])
+             ->optionsEqual([
+               '--upper' => true
+             ])
+             ->printsExactly("BARBARBARBARBAR<br>");
+    }
+}
+```
+
+```php
+argsEqual(object $args) : CommandTestCase;
+optionsEqual(array $options) : CommandTestCase;
+```
+
+Assert that the parsed arguments and options of the command are equal to the given values.
+
+## Testing the Filesystem
+
+Let's take the following command:
+
+```php
+class ListCommand extends Command {
+
+    protected function init ()
+    {
+        $this->name('List')
+             ->version('1.0.0-alpha')
+             ->description('Lists files and directories in the current directory.');
+    }
+
+    protected function execute()
+    {
+        foreach($this->fs->find('*')->asArray() as $file) {
+            $this->console->line($file->name());
+        }
+    }
+
+}
+```
+
+The test can be written as follows:
+
+```php
+class ListCommandTest extends CommandTestCase {
+
+    public function test_it_list_files_and_directories()
+    {
+        $this->havingFile('demo.txt', 'Some text here!')
+             ->havingFile('doc.pdf')
+             ->havingDir('src')
+             ->command(new ListCommand)
+             ->printsExactly('demo.txt<br>doc.pdf<br>src<br>');
+    }
+
+    public function test_it_prints_nothing_when_no_files()
+    {
+        $this->command(new ListCommand)
+             ->printsExactly('');
+    }
+}
+```
+
+```php
+havingFile(string $path, string $content = '') : CommandTestCase;
+havingDir(string $path) : CommandTestCase;
+```
+
+The `CommandTestCase` run the command with a virtual filesystem. The methods `havingFile` and `havingDir` can be used to create files and directories on that filesystem before running the command.
+
+# What's Next
+
+Please take a look at the examples in the `examples` directory, and try using the library to build some awesome commands. Any feedback is welcome!
+
+# Development Notes
+
+- **Version 1.0.0** The first version is finally out; have fun!

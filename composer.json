@@ -11,12 +11,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "Tarsana\\Command\\": "src/",
-            "Tarsana\\Tester\\": "tester/",
-            "Tarsana\\Command\\Tests\\": "tests"
+            "Tarsana\\Command\\": "src",
+            "Tarsana\\Tester\\": "tester",
+            "Tarsana\\Command\\Tests\\": "tests",
+            "Tarsana\\Command\\Examples\\": "examples"
         }
     },
-    "minimum-stability": "alpha",
     "require-dev": {
         "phpunit/phpunit": "^6.3"
     },

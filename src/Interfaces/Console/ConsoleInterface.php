@@ -17,4 +17,5 @@ interface ConsoleInterface {
 
     // Reading
     public function read() : string;
+    public function readLine() : string;
 }
