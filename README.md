@@ -98,20 +98,20 @@ class HelloWorld extends Command {
 
 Here we are overriding the `init()` method to define the command **name**, **version** and **description**.
 
-Note that the setter of an an attribute `foo` is named `foo()` instead of `setFoo()`. I know that this is not a common convention but it makes sense for me :P
+Note that the setter of an an attribute `foo` is named `foo()` instead of `setFoo()`. I know that this is not a common convention but it makes sense for me. :P
 
 ```php
 $this->name('blabla'); // will set the name to 'blabla' and return $this
 $this->name(); // calling it without parameter will get the value of name
 ```
 
-# Showing The Help And Version Of A Command	
+# Showing the Help and Version of a Command	
 
 To show the version of a command, we use the `--version` flag (we will learn after that this is actually a sub command). We also have the `--help` to show the help message:
 
 ![Show version and help message](https://raw.githubusercontent.com/tarsana/command/master/docs/screenshots/hello-version-help.png)
 
-# Reading & Writing to The Console
+# Reading & Writing to the Console
 
 The attribute `console` is used to handle the reading and writing operations to the console.
 
@@ -237,7 +237,7 @@ In the second example, the `count` argument takes autmatically its default value
 
 ![Parse error example](https://raw.githubusercontent.com/tarsana/command/master/docs/screenshots/repeat-args-missing.png)
 
-# Handeling The Filesystem
+# Handling The Filesystem
 
 The `fs` attribute is an instance of `Tarsana\IO\Filesystem` that you can use to handle files and directories. [Read the documentation](https://github.com/tarsana/io#handeling-files-and-directories) for the full API. 
 
@@ -401,7 +401,7 @@ prints(string $text) : CommandTestCase;
 printsError(string $text) : CommandTestCase;
 ```
 
-- `printsExaclty` asserts that the standard output of the command equals `$text`. Note that [tags](#list-of-supported-tags) are not applied to allow testing them easily.
+- `printsExactly` asserts that the standard output of the command equals `$text`. Note that [tags](#list-of-supported-tags) are not applied to allow testing them easily.
 
 - `prints` asserts that the standard output of the command contains `$text`.
 
@@ -478,7 +478,7 @@ The test can be written as follows:
 ```php
 class ListCommandTest extends CommandTestCase {
 
-    public function test_it_list_files_and_directories()
+    public function test_it_lists_files_and_directories()
     {
         $this->havingFile('demo.txt', 'Some text here!')
              ->havingFile('doc.pdf')
