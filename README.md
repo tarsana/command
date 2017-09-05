@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/tarsana/command/badge.svg?branch=master)](https://coveralls.io/github/tarsana/command?branch=master)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/tarsana/command/blob/master/LICENSE)
 
-A library to build command line applications using PHP. This is part of the [Tarsana Project](https://github.com/tarsana/tarsana).
+A library to build command line applications using PHP. This is part of the [Tarsana Project](https://github.com/tarsana/specs).
 
 # Table of Contents
 
