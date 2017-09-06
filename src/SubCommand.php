@@ -23,7 +23,9 @@ class SubCommand extends Command {
     {
         parent::__construct();
         $this->parent($parent)
-             ->console($parent->console);
+             ->console($parent->console())
+             ->fs($parent->fs)
+             ->templatesLoader($parent->templatesLoader);
     }
 
     protected function setupSubCommands()

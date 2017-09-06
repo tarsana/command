@@ -353,6 +353,8 @@ $ php your-script.php foo other arguments here
 
 The `FooCommand` will be run with `other arguments here` as arguments.
 
+**Note:** subcommands will always have the attributes `console`, `fs` and `templatesLoader` pointing to the same objects as their parent, as long as you don't change them explicitly in the subcommand's code.
+
 # Testing Commands
 
 The class `Tarsana\Tester\CommandTestCase` extends `PHPUnit\Framework\TestCase` and adds useful methods to test Tarsana Commands.
@@ -507,5 +509,7 @@ The `CommandTestCase` run the command with a virtual filesystem. The methods `ha
 Please take a look at the examples in the `examples` directory, and try using the library to build some awesome commands. Any feedback is welcome!
 
 # Development Notes
+
+- **Version 1.0.1** Fixed a bug of subcommands having different instances of `fs` and `templatesLoader` from their parent.
 
 - **Version 1.0.0** The first version is finally out; have fun!

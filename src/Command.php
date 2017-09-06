@@ -43,7 +43,6 @@ class Command {
     public function __construct()
     {
         $this->commands([])
-             ->setupSubCommands()
              ->name('Unknown')
              ->version('1.0.0')
              ->description('...')
@@ -51,6 +50,7 @@ class Command {
              ->options([])
              ->console(new Console)
              ->fs(new Filesystem('.'))
+             ->setupSubCommands()
              ->init();
     }
 
