@@ -231,7 +231,7 @@ $ php repeat.php bar --upper
 BARBARBAR
 ```
 
-In the second example, the `count` argument takes autmatically its default value.
+In the second example, the `count` argument takes automatically its default value.
 
 **Warning: Giving wrong arguments generates an error**
 
@@ -241,7 +241,7 @@ In the second example, the `count` argument takes autmatically its default value
 
 The `fs` attribute is an instance of `Tarsana\IO\Filesystem` that you can use to handle files and directories. [Read the documentation](https://github.com/tarsana/io#handeling-files-and-directories) for the full API. 
 
-By default, the `Filesystem` instance pointes to the directory from which the command is run. You can also initialize it to any directory you want:
+By default, the `Filesystem` instance points to the directory from which the command is run. You can also initialize it to any directory you want:
 
 ```php
 using Tarsana\IO\Filesystem;
@@ -254,7 +254,7 @@ protected function init()
 
 # Rendering Templates
 
-The `Command` class gives also possibility to render templates. The dafault template engine is [Twig](https://twig.symfony.com) but you can use your favorite one by implementing the interfaces `TemplateLoaderInterface` and `TemplateInterface`.
+The `Command` class gives also possibility to render templates. The default template engine is [Twig](https://twig.symfony.com) but you can use your favorite one by implementing the interfaces `TemplateLoaderInterface` and `TemplateInterface`.
 
 Let's make a command which renders a simple template. For this we will create two files:
 
