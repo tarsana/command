@@ -21,6 +21,9 @@ class OutTransformer implements TransformerInterface {
         'clearAll'    => '3J',
         'clear'       => '2J',
 
+        'save' => 's',
+        'load' => 'u',
+
         'color' => '38;5;$2m',
         'background' => '48;5;$2m',
         'reset' => '0m',

@@ -1,5 +1,6 @@
 <?php namespace Tarsana\Command\Commands;
 
+use Tarsana\Command\Helpers\SyntaxHelper;
 use Tarsana\Command\SubCommand;
 use Tarsana\Syntax\ArraySyntax;
 use Tarsana\Syntax\ObjectSyntax;
@@ -8,67 +9,78 @@ use Tarsana\Syntax\Syntax;
 
 class HelpCommand extends SubCommand {
 
+    protected $helper;
+
     protected function init()
     {
         $this->name('Help')
-             ->description('Shows the help message');
+             ->description('Shows the help message.');
+        $this->helper = SyntaxHelper::instance();
     }
 
     protected function execute()
     {
-        $c = $this->console();
-        $c->line("<info>{$this->parent()->name()}</info> version <info>{$this->parent()->version()}</info>");
-        $c->line("<br>{$this->parent()->description()}<br>");
+        $parent = $this->parent;
 
-        $syntax = $this->parent()->syntax();
+        $text = "<info>{$parent->name}</info> version <info>{$parent->version}</info>"
+              . "<br><br>{$parent->description}<br><br>"
+              . $this->syntaxHelp()
+              . $this->optionsHelp()
+              . $this->subCommandsHelp();
+
+        $this->console()->out($text);
+    }
+
+    protected function syntaxHelp() : string
+    {
+        $syntax = $this->parent->syntax();
+        $helper = $this->helper;
+        $text   = '';
+
         if ($syntax) {
-            $c->line("Syntax: <success>[options] " . $this->formatSyntax($syntax) . "</success>");
-            $c->line("Arguments:");
+            $string = $helper->asString($syntax);
+            $text  .= "Syntax: <success>[options] {$string}</success><br>"
+                    . "Arguments:<br>";
             foreach ($syntax->fields() as $name => $s) {
-                $this->printField($name, $s);
+                $text .= $this->fieldHelp($name, $s);
             }
         }
 
-        $options = array_keys($this->parent()->options());
+        return $text;
+    }
+
+    protected function optionsHelp() : string
+    {
+        $options = array_keys($this->parent->options());
+        $text = '';
         if (!empty($options)) {
-            $c->line("Options:");
+            $text .= 'Options:<br>';
             foreach ($options as $name) {
                 $description = $this->parent()->describe($name);
-                $c->line("<tab><warn>{$name}</warn> {$description}");
+                $text .= "<tab><warn>{$name}</warn> {$description}<br>";
             }
         }
 
-        $subCommands = $this->parent()->commands();
+        return $text;
+    }
+
+    protected function subCommandsHelp() : string
+    {
+        $subCommands = $this->parent->commands();
+        $text = '';
         if (!empty($subCommands)) {
-            $c->line("SubCommands:");
+            $text .= 'SubCommands:<br>';
             foreach ($subCommands as $name => $cmd) {
-                $c->line("<tab><warn>{$name}</warn> {$cmd->description()}");
+                $text .= "<tab><warn>{$name}</warn> {$cmd->description()}<br>";
             }
         }
+
+        return $text;
     }
 
-    protected function formatSyntax(Syntax $s) : string
-    {
-        if ($s instanceof ObjectSyntax)
-            return implode($s->separator(), array_keys($s->fields()));
-        if ($s instanceof ArraySyntax)
-            return $this->formatSyntax($s->syntax()) . $s->separator() . '...';
-        if ($s instanceof OptionalSyntax)
-            return $this->formatSyntax($s->syntax());
-
-        return (string) $s;
-    }
-
-    protected function getFields(Syntax $s) : array
-    {
-        if ($s instanceof ObjectSyntax)
-            return $s->fields();
-        if ($s instanceof ArraySyntax || $s instanceof OptionalSyntax)
-            return $this->getFields($s->syntax());
-        return [];
-    }
-
-    protected function printField(string $name, Syntax $s, string $prefix = '', int $level = 1)
+    protected function fieldHelp(
+        string $name, Syntax $s, string $prefix = '', int $level = 1
+    ) : string
     {
         $tabs = str_repeat('<tab>', $level);
         $optional = ($s instanceof OptionalSyntax);
@@ -77,14 +89,16 @@ class HelpCommand extends SubCommand {
         else
             $default = 'required';
         $description = $this->parent()->describe($prefix.$name);
-        $syntax = $this->formatSyntax($s);
-        $this->console()->line("{$tabs}<warn>{$name}</warn> <success>{$syntax}</success> {$description} <info>({$default})</info>");
-
+        $syntax = $this->helper->asString($s);
+        $text   = "{$tabs}<warn>{$name}</warn> <success>{$syntax}</success>"
+                . " {$description} <info>({$default})</info><br>";
         $level ++;
         $prefix .= $name . '.';
-        foreach ($this->getFields($s) as $field => $syntax) {
-            $this->printField($field, $syntax, $prefix, $level);
+        foreach ($this->helper->fields($s) as $field => $syntax) {
+            $text .= $this->fieldHelp($field, $syntax, $prefix, $level);
         }
+
+        return $text;
     }
 
 }

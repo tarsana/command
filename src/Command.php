@@ -1,6 +1,7 @@
 <?php namespace Tarsana\Command;
 
 use Tarsana\Command\Commands\HelpCommand;
+use Tarsana\Command\Commands\InteractiveCommand;
 use Tarsana\Command\Commands\VersionCommand;
 use Tarsana\Command\Console\Console;
 use Tarsana\Command\Console\ExceptionPrinter;
@@ -298,7 +299,8 @@ class Command {
     protected function setupSubCommands()
     {
         return $this->command('--help', new HelpCommand($this))
-             ->command('--version', new VersionCommand($this));
+             ->command('--version', new VersionCommand($this))
+             ->command('-i', new InteractiveCommand($this));
     }
 
     public function describe(string $name, string $description = null)
@@ -347,16 +349,20 @@ class Command {
                 }
             }
 
-            if (null === $this->action)
-                $this->execute();
-            else
-                ($this->action)($this);
+            return $this->fire();
         } catch (\Exception $e) {
             $this->handleError($e);
         }
     }
 
-    public function clear()
+    protected function fire()
+    {
+        return (null === $this->action)
+            ? $this->execute()
+            : ($this->action)($this);
+    }
+
+    protected function clear()
     {
         $this->args = null;
         foreach($this->options as $name => $value) {
@@ -364,7 +370,7 @@ class Command {
         }
     }
 
-    public function parseArguments(array $args)
+    protected function parseArguments(array $args)
     {
         if (null === $this->syntax) {
             $this->args = null;

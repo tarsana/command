@@ -100,6 +100,14 @@ class Console implements ConsoleInterface {
         return $this->in->readLine();
     }
 
+    public function char() : string
+    {
+        readline_callback_handler_install('', function() {});
+        $c = $this->in->read(1);
+        readline_callback_handler_remove();
+        return $c;
+    }
+
     public function alias(string $name, string $value) : ConsoleInterface
     {
         $this->outTransformer->alias($name, $value);
