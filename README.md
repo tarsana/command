@@ -20,6 +20,7 @@ A library to build command line applications using PHP. This is part of the [Tar
 
 - [Defining Arguments and Options](#defining-arguments-and-options)
 
+- [Reading Arguments and Options Interactively](#reading-arguments-and-options-interactively) **New on version 1.1.0**
 - [Handeling The Filesystem](#handeling-the-filesystem)
 
 - [Rendering Templates](#rendering-templates)
@@ -236,6 +237,83 @@ In the second example, the `count` argument takes automatically its default valu
 **Warning: Giving wrong arguments generates an error**
 
 ![Parse error example](https://raw.githubusercontent.com/tarsana/command/master/docs/screenshots/repeat-args-missing.png)
+
+# Reading Arguments and Options Interactively
+
+Some commands can have long and complicated list of arguments. Defining the syntax of such command is easy thanks to [Syntax](https://github.com/tarsana/syntax) but typing the arguments in the command line becomes challenging.
+
+Let's take the following command for example:
+
+```php
+class ClassGenerator extends Command {
+    protected function init()
+    {
+        $this->name('Class Generator')
+        ->version('1.0.0')
+        ->description('Generates basic code for a class.')
+        ->syntax('
+            language: string,
+            name: string,
+            parents: ([string]:[]),
+            interfaces: ([string]:[]),
+            attrs: [{
+                name,
+                type,
+                hasGetter: (boolean:true),
+                hasSetter: (boolean:true),
+                isStatic: (boolean:false)
+            }],
+            methods: ([{
+                name: string,
+                type: string,
+                args: [{ name, type, default: (string:null) |.}],
+                isStatic: (boolean:false)
+            }]:[])
+        ')
+        ->descriptions([
+            'language'          => 'The programming language in which the code will be generated.',
+            'name'              => 'The name of the class.',
+            'parents'           => 'List of parent classes names.',
+            'interfaces'        => 'List of implemented interfaces.',
+            'attrs'             => 'List of attributes of the class.',
+            'attrs.name'        => 'The name of the attribute.',
+            'attrs.type'        => 'The type of the attribute.',
+            'attrs.hasGetter'   => 'Generate a getter for the attribute.',
+            'attrs.hasSetter'   => 'Generate a setter for the attribute.',
+            'attrs.isStatic'    => 'The attribute is static.',
+            'methods'           => 'List of methods of the class.',
+            'methods.name'      => 'The method name.',
+            'methods.type'      => 'The method return type.',
+            'methods.args'      => 'List of arguments of the method.',
+            'methods.isStatic'  => 'This method is static.'
+        ]);
+    }
+
+    protected function execute()
+    {
+        $this->console->line("Generate code for the class {$this->args->name} in {$this->args->language}...");
+
+    }
+}
+```
+
+if you run the command using the `-i` flag, it will let you enter the arguments interactively:
+
+![Interactive Arguments Reader](https://raw.githubusercontent.com/tarsana/command/master/docs/screenshots/interactive-args.gif)
+
+After reading all args, the command will show the command line version of the entered args: 
+
+```
+>  PHP User  Serializable name:string:true:true:false
+```
+
+which means that running
+
+```
+$ php class.php  PHP User  Serializable name:string:true:true:false 
+```
+
+would produce the same result.
 
 # Handling The Filesystem
 
@@ -509,6 +587,8 @@ The `CommandTestCase` run the command with a virtual filesystem. The methods `ha
 Please take a look at the examples in the `examples` directory, and try using the library to build some awesome commands. Any feedback is welcome!
 
 # Development Notes
+
+- **Version 1.1.0** The flag `-i` added to commands to enable interactive reading of arguments and options.
 
 - **Version 1.0.1** Fixed a bug of subcommands having different instances of `fs` and `templatesLoader` from their parent.
 

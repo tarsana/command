@@ -45,6 +45,32 @@ class ShowsHelpTest extends CommandTestCase {
             ->describe('methods.isStatic', 'This method is static.');
 
         $this->command($c, ['--help'])
-            ->printsExactly("<info>Class Generator</info> version <info>1.0.1</info><br><br>Generates basic code for a class.<br><br>Syntax: <success>[options] name parents interfaces attrs methods</success><br>Arguments:<br><tab><warn>name</warn> <success>String</success> The name of the class. <info>(required)</info><br><tab><warn>parents</warn> <success>String,...</success> List of parent classes names. <info>(default: [])</info><br><tab><warn>interfaces</warn> <success>String,...</success> List of implemented interfaces. <info>(default: [])</info><br><tab><warn>attrs</warn> <success>name:type:hasGetter:hasSetter:isStatic,...</success> List of attributes of the class. <info>(required)</info><br><tab><tab><warn>name</warn> <success>String</success> The name of the attribute. <info>(required)</info><br><tab><tab><warn>type</warn> <success>String</success> The type of the attribute. <info>(required)</info><br><tab><tab><warn>hasGetter</warn> <success>Boolean</success> Generates a getter for the attribute. <info>(default: true)</info><br><tab><tab><warn>hasSetter</warn> <success>Boolean</success> Generates a setter for the attribute. <info>(default: true)</info><br><tab><tab><warn>isStatic</warn> <success>Boolean</success> The attribute is static. <info>(default: false)</info><br><tab><warn>methods</warn> <success>name:type:args:isStatic,...</success> List of methods of the class. <info>(default: [])</info><br><tab><tab><warn>name</warn> <success>String</success> The method name. <info>(required)</info><br><tab><tab><warn>type</warn> <success>String</success> The method return type. <info>(required)</info><br><tab><tab><warn>args</warn> <success>name.type.default,...</success> List of arguments of the method. <info>(required)</info><br><tab><tab><tab><warn>name</warn> <success>String</success>  <info>(required)</info><br><tab><tab><tab><warn>type</warn> <success>String</success>  <info>(required)</info><br><tab><tab><tab><warn>default</warn> <success>String</success>  <info>(default: \"null\")</info><br><tab><tab><warn>isStatic</warn> <success>Boolean</success> This method is static. <info>(default: false)</info><br>SubCommands:<br><tab><warn>--help</warn> Shows the help message<br><tab><warn>--version</warn> Shows the version<br>");
+            ->printsExactly(
+                "<info>Class Generator</info> version <info>1.0.1</info><br>"
+              . "<br>Generates basic code for a class.<br>"
+              . "<br>Syntax: <success>[options] name parents interfaces attrs methods</success><br>"
+              . "Arguments:<br>"
+              . "<tab><warn>name</warn> <success>string</success> The name of the class. <info>(required)</info><br>"
+              . "<tab><warn>parents</warn> <success>string,...</success> List of parent classes names. <info>(default: [])</info><br>"
+              . "<tab><warn>interfaces</warn> <success>string,...</success> List of implemented interfaces. <info>(default: [])</info>"
+              . "<br><tab><warn>attrs</warn> <success>name:type:hasGetter:hasSetter:isStatic,...</success> List of attributes of the class. <info>(required)</info><br>"
+              . "<tab><tab><warn>name</warn> <success>string</success> The name of the attribute. <info>(required)</info><br>"
+              . "<tab><tab><warn>type</warn> <success>string</success> The type of the attribute. <info>(required)</info><br>"
+              . "<tab><tab><warn>hasGetter</warn> <success>boolean</success> Generates a getter for the attribute. <info>(default: true)</info><br>"
+              . "<tab><tab><warn>hasSetter</warn> <success>boolean</success> Generates a setter for the attribute. <info>(default: true)</info><br>"
+              . "<tab><tab><warn>isStatic</warn> <success>boolean</success> The attribute is static. <info>(default: false)</info><br>"
+              . "<tab><warn>methods</warn> <success>name:type:args:isStatic,...</success> List of methods of the class. <info>(default: [])</info><br>"
+              . "<tab><tab><warn>name</warn> <success>string</success> The method name. <info>(required)</info><br>"
+              . "<tab><tab><warn>type</warn> <success>string</success> The method return type. <info>(required)</info><br>"
+              . "<tab><tab><warn>args</warn> <success>name.type.default,...</success> List of arguments of the method. <info>(required)</info><br>"
+              . "<tab><tab><tab><warn>name</warn> <success>string</success>  <info>(required)</info><br>"
+              . "<tab><tab><tab><warn>type</warn> <success>string</success>  <info>(required)</info><br>"
+              . "<tab><tab><tab><warn>default</warn> <success>string</success>  <info>(default: \"null\")</info><br>"
+              . "<tab><tab><warn>isStatic</warn> <success>boolean</success> This method is static. <info>(default: false)</info><br>"
+              . "SubCommands:<br>"
+              . "<tab><warn>--help</warn> Shows the help message.<br>"
+              . "<tab><warn>--version</warn> Shows the version.<br>"
+              . "<tab><warn>-i</warn> Reads the command arguments and options interactively.<br>"
+            );
     }
 }

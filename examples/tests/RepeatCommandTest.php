@@ -45,4 +45,18 @@ class RepeatCommandTest extends CommandTestCase {
              ->printsExactly("BARBARBARBARBAR<br>");
     }
 
+    public function test_it_runs_interatively()
+    {
+        $this->withStdin("Yo\n\n\n")
+             ->command(new RepeatCommand, ['-i'])
+             ->argsEqual((object) [
+               'word' => 'Yo',
+               'count' => 3
+             ])
+             ->optionsEqual([
+               '--upper' => false
+             ])
+             ->prints("YoYoYo<br>");
+    }
+
 }

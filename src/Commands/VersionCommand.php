@@ -7,7 +7,7 @@ class VersionCommand extends SubCommand {
     protected function init()
     {
         $this->name('Version')
-             ->description('Shows the version');
+             ->description('Shows the version.');
     }
 
     protected function execute()
