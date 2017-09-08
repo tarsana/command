@@ -18,6 +18,11 @@ class HelpCommand extends SubCommand {
         $this->helper = SyntaxHelper::instance();
     }
 
+    protected function setupSubCommands()
+    {
+        return $this;
+    }
+
     protected function execute()
     {
         $parent = $this->parent;

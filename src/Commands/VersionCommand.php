@@ -10,6 +10,11 @@ class VersionCommand extends SubCommand {
              ->description('Shows the version.');
     }
 
+    protected function setupSubCommands()
+    {
+        return $this;
+    }
+
     protected function execute()
     {
         $command = $this->parent();

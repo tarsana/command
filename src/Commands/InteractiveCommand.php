@@ -31,6 +31,11 @@ class InteractiveCommand extends SubCommand {
         $this->confirmSyntax = S::optional(S::boolean(), false);
     }
 
+    protected function setupSubCommands()
+    {
+        return $this;
+    }
+
     protected function execute()
     {
         $parent = $this->parent;

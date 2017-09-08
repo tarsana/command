@@ -28,11 +28,6 @@ class SubCommand extends Command {
              ->templatesLoader($parent->templatesLoader);
     }
 
-    protected function setupSubCommands()
-    {
-        return $this;
-    }
-
     /**
      * parent getter and setter.
      *
