@@ -1,7 +1,7 @@
 # Tarsana Command
 
 [![Build Status](https://travis-ci.org/tarsana/command.svg?branch=master)](https://travis-ci.org/tarsana/command)
-[![Backers on Open Collective](https://opencollective.com/command/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/command/sponsors/badge.svg)](#sponsors) [![Coverage Status](https://coveralls.io/repos/github/tarsana/command/badge.svg?branch=master)](https://coveralls.io/github/tarsana/command?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/tarsana/command/badge.svg?branch=master)](https://coveralls.io/github/tarsana/command?branch=master)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/tarsana/command/blob/master/LICENSE)
 
 A library to build command line applications using PHP. This is part of the [Tarsana Project](https://github.com/tarsana/specs).
@@ -595,33 +595,3 @@ Please take a look at the examples in the `examples` directory, and try using th
 - **Version 1.0.1** Fixed a bug of subcommands having different instances of `fs` and `templatesLoader` from their parent.
 
 - **Version 1.0.0** The first version is finally out; have fun!
-
-## Contributors
-
-This project exists thanks to all the people who contribute.
-<a href="graphs/contributors"><img src="https://opencollective.com/command/contributors.svg?width=890" /></a>
-
-
-## Backers
-
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/command#backer)]
-
-<a href="https://opencollective.com/command#backers" target="_blank"><img src="https://opencollective.com/command/backers.svg?width=890"></a>
-
-
-## Sponsors
-
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/command#sponsor)]
-
-<a href="https://opencollective.com/command/sponsor/0/website" target="_blank"><img src="https://opencollective.com/command/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/command/sponsor/1/website" target="_blank"><img src="https://opencollective.com/command/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/command/sponsor/2/website" target="_blank"><img src="https://opencollective.com/command/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/command/sponsor/3/website" target="_blank"><img src="https://opencollective.com/command/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/command/sponsor/4/website" target="_blank"><img src="https://opencollective.com/command/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/command/sponsor/5/website" target="_blank"><img src="https://opencollective.com/command/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/command/sponsor/6/website" target="_blank"><img src="https://opencollective.com/command/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/command/sponsor/7/website" target="_blank"><img src="https://opencollective.com/command/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/command/sponsor/8/website" target="_blank"><img src="https://opencollective.com/command/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/command/sponsor/9/website" target="_blank"><img src="https://opencollective.com/command/sponsor/9/avatar.svg"></a>
-
-
