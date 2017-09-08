@@ -588,6 +588,8 @@ Please take a look at the examples in the `examples` directory, and try using th
 
 # Development Notes
 
+- **Version 1.1.1** Fixed a bug with subcommands not having the default `--help`, `--version` and `-i` subcommands.
+
 - **Version 1.1.0** The flag `-i` added to commands to enable interactive reading of arguments and options.
 
 - **Version 1.0.1** Fixed a bug of subcommands having different instances of `fs` and `templatesLoader` from their parent.
