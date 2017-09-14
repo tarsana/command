@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/tarsana/command.svg?branch=master)](https://travis-ci.org/tarsana/command)
 [![Coverage Status](https://coveralls.io/repos/github/tarsana/command/badge.svg?branch=master)](https://coveralls.io/github/tarsana/command?branch=master)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/cbaeb46f-468d-4d02-a02a-574fad0f95d3/mini.png)](https://insight.sensiolabs.com/projects/cbaeb46f-468d-4d02-a02a-574fad0f95d3)
+[![Gratipay](https://img.shields.io/gratipay/project/Tarsana.svg)](https://gratipay.com/Tarsana)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/tarsana/command/blob/master/LICENSE)
 
 A library to build command line applications using PHP. This is part of the [Tarsana Project](https://github.com/tarsana/specs).
