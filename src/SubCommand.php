@@ -26,6 +26,7 @@ class SubCommand extends Command {
              ->console($parent->console())
              ->fs($parent->fs)
              ->templatesLoader($parent->templatesLoader);
+             $this->config = $parent->config;
     }
 
     /**

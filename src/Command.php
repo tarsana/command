@@ -3,6 +3,7 @@
 use Tarsana\Command\Commands\HelpCommand;
 use Tarsana\Command\Commands\InteractiveCommand;
 use Tarsana\Command\Commands\VersionCommand;
+use Tarsana\Command\Config\ConfigLoader;
 use Tarsana\Command\Console\Console;
 use Tarsana\Command\Console\ExceptionPrinter;
 use Tarsana\Command\Interfaces\Console\ConsoleInterface;
@@ -33,6 +34,7 @@ class Command {
     protected $console;
     protected $fs;
     protected $templatesLoader;
+    protected $config;
 
     public static function create(callable $action = null) {
         $command = new Command;
@@ -51,6 +53,7 @@ class Command {
              ->options([])
              ->console(new Console)
              ->fs(new Filesystem('.'))
+             ->configPaths([])
              ->setupSubCommands()
              ->init();
     }
@@ -233,7 +236,8 @@ class Command {
         return $this;
     }
 
-    public function templatesPath(string $path, string $cachePath = null) {
+    public function templatesPath(string $path, string $cachePath = null)
+    {
         $this->templatesLoader = new TemplateLoader($path, $cachePath);
         foreach ($this->commands as $name => $command) {
             $command->templatesLoader = $this->templatesLoader();
@@ -241,10 +245,26 @@ class Command {
         return $this;
     }
 
-    public function template(string $name) {
+    public function template(string $name)
+    {
         if (null === $this->templatesLoader)
             throw new \Exception("Please initialize the templates loader before trying to load templates!");
         return $this->templatesLoader->load($name);
+    }
+
+    public function configPaths(array $paths)
+    {
+        $configLoader = new ConfigLoader($this->fs);
+        $this->config = $configLoader->load($paths);
+        foreach ($this->commands as $name => $command) {
+            $command->config = $this->config;
+        }
+        return $this;
+    }
+
+    public function config(string $path = null)
+    {
+        return $this->config->get($path);
     }
 
     /**

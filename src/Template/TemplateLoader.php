@@ -2,6 +2,7 @@
 
 use Tarsana\Command\Interfaces\Template\TemplateInterface;
 use Tarsana\Command\Interfaces\Template\TemplateLoaderInterface;
+use Tarsana\Command\Template\Twig\TwigLoader;
 use Tarsana\IO\Filesystem;
 
 
@@ -18,7 +19,7 @@ class TemplateLoader implements TemplateLoaderInterface {
      * @var array
      */
     protected static $providers = [
-        'twig' => 'Tarsana\Command\Template\Twig\TwigLoader'
+        'twig' => TwigLoader::class
     ];
 
     /**
