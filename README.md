@@ -22,8 +22,10 @@ A library to build command line applications using PHP. This is part of the [Tar
 
 - [Defining Arguments and Options](#defining-arguments-and-options)
 
-- [Reading Arguments and Options Interactively](#reading-arguments-and-options-interactively) **New on version 1.1.0**
+- [Reading Arguments and Options Interactively](#reading-arguments-and-options-interactively) **Since version 1.1.0**
 - [Handeling The Filesystem](#handeling-the-filesystem)
+
+- [Loading Configuration](#loading-configuration) **New on version 1.2.0**
 
 - [Rendering Templates](#rendering-templates)
 
@@ -332,6 +334,43 @@ protected function init()
 }
 ```
 
+# Loading Configuration
+
+In addition to the command line arguments, the user can provide data to your command via configuration files. This is useful because it lets you define a default configuration file and lets the user change some values with a custom configuration file.
+
+Let's write an example command which have a global configuration file at `/home/user/.config.json`. It lets the user customize value via the file `config.json` in the current directory:
+
+```php
+class ConfigCommand extends Command {
+    protected function init()
+    {
+        // ...
+        $this->configPaths(['/home/user/.config.json', 'config.json']);
+    }
+
+    protected function execute()
+    {
+        // getting a config value
+        // assuming that $data is the merged content of the config files
+        $this->config('name'); // returns $data['name']
+        $this->config('foo.bar.baz'); // returns $data['foo']['bar']['baz']
+        $this->config(); // returns $data
+    }
+}
+```
+
+- The method `configPaths` take a list of paths, loads them and merges them into one configuration (it use `array_replace_recursive` internally).
+
+- The method `config` is used to retreive configuration values.
+
+Note that:
+
+- Only `json` files are supported as configuration files for the moment. Please open an issue or make a Pull Request to add other formats.
+
+- `configPaths` will silently ignore paths which does not exist in the filesystem.
+
+- A subcommand will always have the same configuration data as its parent command, unless `configPaths` is used to override it.
+
 # Rendering Templates
 
 The `Command` class gives also possibility to render templates. The default template engine is [Twig](https://twig.symfony.com) but you can use your favorite one by implementing the interfaces `TemplateLoaderInterface` and `TemplateInterface`.
@@ -589,6 +628,8 @@ The `CommandTestCase` run the command with a virtual filesystem. The methods `ha
 Please take a look at the examples in the `examples` directory, and try using the library to build some awesome commands. Any feedback is welcome!
 
 # Development Notes
+
+- **Version 1.2.0** Commands can now load configuration from multiple JSON files.
 
 - **Version 1.1.1** Fixed a bug with subcommands not having the default `--help`, `--version` and `-i` subcommands.
 
