@@ -8,7 +8,7 @@ use Tarsana\IO\Filesystem\Adapters\Memory;
 use Tarsana\IO\Resource\Buffer;
 use Tarsana\Tester\Mocks\Transformer;
 
-class CommandTestCase extends TestCase {
+abstract class CommandTestCase extends TestCase {
 
     protected $fs;
     protected $cmd;
