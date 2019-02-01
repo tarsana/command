@@ -103,7 +103,7 @@ class HelloWorld extends Command {
 
 Here we are overriding the `init()` method to define the command **name**, **version** and **description**.
 
-Note that the setter of an an attribute `foo` is named `foo()` instead of `setFoo()`. I know that this is not a common convention but it makes sense for me. :P
+Note that the setter of an attribute `foo` is named `foo()` instead of `setFoo()`. I know that this is not a common convention but it makes sense for me. :P
 
 ```php
 $this->name('blabla'); // will set the name to 'blabla' and return $this
