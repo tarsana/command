@@ -20,10 +20,8 @@ class ConfigTest extends TestCase {
         $this->assertEquals('some-link-here', $c->get('urls.github'));
     }
 
-    /**
-     * @expectedException Exception
-     */
     public function test_it_throws_exception() {
+        $this->expectException('Exception');
         $data = [
             'name' => 'Foo',
             'urls' => [

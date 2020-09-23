@@ -1,28 +1,29 @@
 {
-    "name": "tarsana/command",
-    "description": "A framework to build command line applications and share them with the world",
-    "type": "library",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Amine Ben hammou",
-            "email": "webneat@gmail.com"
-        }
-    ],
-    "autoload": {
-        "psr-4": {
-            "Tarsana\\Command\\": "src",
-            "Tarsana\\Tester\\": "tester",
-            "Tarsana\\Command\\Tests\\": "tests",
-            "Tarsana\\Command\\Examples\\": "examples"
-        }
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^6.3"
-    },
-    "require": {
-        "tarsana/io": "^2.0",
-        "tarsana/syntax": "^2.0",
-        "twig/twig": "^2.4"
+  "name": "tarsana/command",
+  "description": "A framework to build command line applications and share them with the world",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Amine Ben hammou",
+      "email": "webneat@gmail.com"
     }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Tarsana\\Command\\": "src",
+      "Tarsana\\Tester\\": "tester",
+      "Tarsana\\Command\\Tests\\": "tests",
+      "Tarsana\\Command\\Examples\\": "examples"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.3"
+  },
+  "require": {
+    "php": ">=7.3",
+    "tarsana/io": "^2.0",
+    "tarsana/syntax": "^2.0",
+    "twig/twig": "^2.4"
+  }
 }

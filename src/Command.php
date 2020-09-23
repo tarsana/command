@@ -392,11 +392,6 @@ class Command {
 
     protected function parseArguments(array $args)
     {
-        if (null === $this->syntax) {
-            $this->args = null;
-            return;
-        }
-
         $arguments = [];
         foreach ($args as &$arg) {
             if (array_key_exists($arg, $this->options))
@@ -404,8 +399,12 @@ class Command {
             else
                 $arguments[] = $arg;
         }
-        $arguments = T::join($arguments, ' ');
-        $this->args = $this->syntax->parse($arguments);
+        if (null === $this->syntax) {
+            $this->args = null;
+        } else {
+            $arguments = T::join($arguments, ' ');
+            $this->args = $this->syntax->parse($arguments);
+        }
     }
 
     protected function handleError(\Exception $e) {

@@ -8,14 +8,17 @@ class HelloWorld extends Command {
     {
         $this->name('Hello World')
              ->version('1.0.0-alpha')
-             ->description('Shows a "Hello World" message');
+             ->description('Shows a "Hello World" message')
+             ->options(['--formal'])
+             ->describe('--formal', 'Use formal "Greetings" instead of "Hello"');
     }
 
     protected function execute()
     {
+        $greeting = $this->option('--formal') ? 'Greetings' : 'Hello';
         $this->console->out('Your name: ');
         $name = $this->console->readLine();
-        $this->console->line("Hello {$name}");
+        $this->console->line("{$greeting} {$name}");
     }
 
 }
