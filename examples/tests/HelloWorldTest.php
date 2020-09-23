@@ -13,6 +13,14 @@ class HelloWorldTest extends CommandTestCase {
              ->prints("Your name:")
              ->prints("Hello Amine<br>");
     }
+    
+    public function test_it_uses_formal_greeting()
+    {
+        $this->withStdin("Amine\n")
+             ->command(new HelloWorld, ['--formal'])
+             ->prints("Your name:")
+             ->prints("Greetings Amine<br>");
+    }
 
     public function test_it_shows_hello_world_version()
     {
