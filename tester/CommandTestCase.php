@@ -16,7 +16,7 @@ abstract class CommandTestCase extends TestCase {
     protected $stdout;
     protected $stderr;
 
-    public function setUp()
+    public function setUp(): void
     {
         $adapter = new Memory;
         $adapter->mkdir('.', 0777, true);
