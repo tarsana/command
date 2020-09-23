@@ -99,7 +99,7 @@ class HelloWorld extends Command {
     }
 
 }
-``` 
+```
 
 Here we are overriding the `init()` method to define the command **name**, **version** and **description**.
 
@@ -110,7 +110,7 @@ $this->name('blabla'); // will set the name to 'blabla' and return $this
 $this->name(); // calling it without parameter will get the value of name
 ```
 
-# Showing the Help and Version of a Command	
+# Showing the Help and Version of a Command
 
 To show the version of a command, we use the `--version` flag (we will learn after that this is actually a sub command). We also have the `--help` to show the help message:
 
@@ -179,7 +179,7 @@ $this->console->line('<info> information text </info>');
 $this->console->line('<warn> warning text </warn>');
 $this->console->line('<success> success text </success>');
 $this->console->line('<error> error text </error>');
-$this->console->line('<tab>'); // prints four spaces "    " 
+$this->console->line('<tab>'); // prints four spaces "    "
 $this->console->line('<br>'); // prints line break  PHP_EOL
 ```
 
@@ -305,7 +305,7 @@ if you run the command using the `-i` flag, it will let you enter the arguments 
 
 ![Interactive Arguments Reader](https://raw.githubusercontent.com/tarsana/command/master/docs/screenshots/interactive-args.gif)
 
-After reading all args, the command will show the command line version of the entered args: 
+After reading all args, the command will show the command line version of the entered args:
 
 ```
 >  PHP User  Serializable name:string:true:true:false
@@ -314,14 +314,14 @@ After reading all args, the command will show the command line version of the en
 which means that running
 
 ```
-$ php class.php  PHP User  Serializable name:string:true:true:false 
+$ php class.php  PHP User  Serializable name:string:true:true:false
 ```
 
 would produce the same result.
 
 # Handling The Filesystem
 
-The `fs` attribute is an instance of `Tarsana\IO\Filesystem` that you can use to handle files and directories. [Read the documentation](https://github.com/tarsana/io#handeling-files-and-directories) for the full API. 
+The `fs` attribute is an instance of `Tarsana\IO\Filesystem` that you can use to handle files and directories. [Read the documentation](https://github.com/tarsana/io#handeling-files-and-directories) for the full API.
 
 By default, the `Filesystem` instance points to the directory from which the command is run. You can also initialize it to any directory you want:
 
@@ -440,7 +440,7 @@ Hello You
 
 # Adding SubCommands
 
-You can add subcommands while initializing your command. 
+You can add subcommands while initializing your command.
 
 ```php
 // ...
@@ -458,7 +458,7 @@ protected function init()
 
     // Later on you can get subcommands
     $this->commands(); // returns all the subcommands as key-value array
-    $this->command('name'); // gets the subcommand with the given name 
+    $this->command('name'); // gets the subcommand with the given name
     // will throw an exception if the subcommand is missing
     $this->hasCommand('name'); // checks if a subcommand with the given name exists
 }
@@ -628,6 +628,8 @@ The `CommandTestCase` run the command with a virtual filesystem. The methods `ha
 Please take a look at the examples in the `examples` directory, and try using the library to build some awesome commands. Any feedback is welcome!
 
 # Development Notes
+
+- **Version 2.0.0** Tarsana Command now uses PHPUnit 9 and thus requires PHP 7.3 or PHP 7.4.
 
 - **Version 1.2.1** The `CommandTestCase` is now an abstract class to avoid PHPUnit warnings.
 

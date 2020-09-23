@@ -12,7 +12,7 @@ class ConfigLoaderTest extends TestCase {
     protected $fs;
     protected $loader;
 
-    public function setUp() {
+    public function setUp(): void {
         $adapter = new Memory;
         $adapter->mkdir('.', 0777, true);
         $this->fs = new Filesystem('.', $adapter);
@@ -48,10 +48,8 @@ class ConfigLoaderTest extends TestCase {
        $this->assertEquals([], $this->loader->load([])->get());
    }
 
-    /**
-     * @expectedException Exception
-     */
     public function test_it_throws_exception_when_unknown_extension() {
+        $this->expectException('Exception');
         $this->fs->file('config.xml', true);
         $this->loader->load(['config.xml']);
     }
